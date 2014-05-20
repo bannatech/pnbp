@@ -9,10 +9,11 @@ def getPages(template,settings,name):
 
     # Generates all posts on page
     a = ""
+    pages['title'] = {}
     for i in data:
         post = generatePost(i, settings, temp, int(settings['defaultPostCount']))
         a = post + a
-        pages[slug(i['title'])] = template.replace("%"+name,post)
+        pages['title'][slug(i['title'])] = template.replace("%"+name,post)
 
     pages['default'] = template.replace("%"+name,a)
     return pages
