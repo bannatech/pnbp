@@ -1,0 +1,4 @@
+{
+"index":{"template":"templates/std.html","pagevar":{"title":"This is a test page"},"pagemod":{"content":{"mod":"blog","settings":{"defaultPostCount":"0","data":"./data/index.json"}}}},
+"test":{"template":"templates/std.html","pagevar":{"title":"This is THE test page"},"pagemod":{"content":{"mod":"blog","settings":{"defaultPostCount":"1","data":"./data/test.json"}}}}
+}
