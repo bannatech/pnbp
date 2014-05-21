@@ -13,22 +13,22 @@ def getPages(template,settings,name):
         if 0 == 0 or int(data['post']) >= 0:
             a = generatePost(i,temp) + a
 
-    pages['default'] = template.replace("%"+name,a)
+    pages['default'] = template.replace("%"+name+"%",a)
 
     # Generates individual pages referenced by title
     pages['post'] = {}
     for i in data:
         post = generatePost(i,temp)
-        pages['post'][slug(i['title'])] = template.replace("%"+name,post)
+        pages['post'][slug(i['title'])] = template.replace("%"+name+"%",post)
 
     return pages
 
 def generatePost(data, post):
     for name,x in data.items():
         if name == 'title':
-            post = post.replace("%titlelink",slug(x))
+            post = post.replace("%titlelink%",slug(x))
 
-        post = post.replace("%"+name, x)
+        post = post.replace("%"+name+"%", x)
 
     return post
                 

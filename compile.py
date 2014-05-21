@@ -5,14 +5,7 @@
 '  Paul Longtine - paullongtine@gmail.com
 '
 '''
-import mod
-import json
-
-pages = open("pages.json")
-
-pagedata = json.load(pages)
-
-pages.close()
+import os, shutil, mod, json
 
 def main():
     print("Going through pages...")
@@ -27,15 +20,22 @@ def main():
         print("page '{}' using template '{}'...".format(name,v['template']))
 
         site[name] = runMod(template,v['pagemod'])
-        
-    print site
+    
+    buildSite(site)
 
 # Adds in variables defined in pages.json
 #
 # t = raw template, var = "pagevar" variables in pages.json (<pagename> -> "pagevar")
 def generateTemplate(t,var):
     for search,replace in var.items():
-        t = t.replace("%"+search,replace)
+        if search[0] == ":":
+            try:
+                inc = open(replace).read()
+                t = t.replace("%"+search+"%",inc)
+            except:
+                print("Can't open file '{}'".format(replace))
+        else:
+            t = t.replace("%"+search+"%",replace)
 
     return t
 
@@ -49,6 +49,35 @@ def runMod(t,var):
 
     return subpage
 
+# Builds the site off of a filestructure dictionary.
+
+def buildSite(site):
+    try:
+        shutil.rmtree("./site/")
+    except:
+        print("No directory site/, ignoring")
+
+    os.mkdir("./site/")
+    for page, subpages in site.items():
+        if page == "index":
+            currentDir = "./site"
+        else:
+            currentDir = "./site/"+page
+            os.mkdir(currentDir)
+
+        open(currentDir+"/index.html", "w").write(subpages['default'])
+
+        for subdir, data in subpages.items():
+            if subdir != "default":
+                os.mkdir(currentDir+"/"+subdir)
+                for page, content in data.items():
+                    os.mkdir(currentDir+"/"+subdir+"/"+page)
+                    open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
+                
+
 if __name__ == "__main__":
+    pages = open("pages.json")
+    pagedata = json.load(pages)
+    pages.close()
     main()
     print("Finished.")
