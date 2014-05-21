@@ -11,7 +11,8 @@ def main():
     print("Going through pages...")
 
     site = {}
-
+    
+    #Loops through defined "sites"
     for name,v in pagedata.items():
         template = open(v['template']).read()
 
@@ -19,7 +20,7 @@ def main():
 
         print("page '{}' using template '{}'...".format(name,v['template']))
 
-        site[name] = runMod(template,v['pagemod'])
+        site[name] = runMod(template,v['pagemod'],name)
     
     buildSite(site)
 
@@ -42,10 +43,10 @@ def generateTemplate(t,var):
 # Runs modules defined in pages.json
 #
 # t = raw template, var = "pagemod" variables in pages.json (<pagename> -> "pagemod")
-def runMod(t,var):
+def runMod(t,var,page):
     subpage = {}
     for name, mdata in var.items():
-        subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name))
+        subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
 
     return subpage
 
@@ -71,8 +72,11 @@ def buildSite(site):
             if subdir != "default":
                 os.mkdir(currentDir+"/"+subdir)
                 for page, content in data.items():
-                    os.mkdir(currentDir+"/"+subdir+"/"+page)
-                    open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
+                    if page != "default":
+                        os.mkdir(currentDir+"/"+subdir+"/"+page)
+                        open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
+                    else:
+                        open(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
                 
 
 if __name__ == "__main__":
