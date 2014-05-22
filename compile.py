@@ -12,7 +12,10 @@ def main():
     
     #Loops through defined "sites"
     for name,v in pagedata.items():
-        template = open(v['template']).read()
+        try:
+            template = open(v['template']).read()
+        except:
+            print("Can't open file '{}'".format(v['template']))
 
         template = generateTemplate(template,v['pagevar'])
 
@@ -77,7 +80,10 @@ def buildSite(site):
 
 if __name__ == "__main__":
     print("Going through pages...")
-    pages = open("pages.json")
+    try:
+        pages = open("pages.json")
+    except:
+        print("Can't open file 'pages.json'")        
     pagedata = json.load(pages)
     pages.close()
     main()
