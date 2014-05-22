@@ -1,4 +1,4 @@
-import json
+import json, time
 
 def getPages(template,settings,name,page):
     pages = {}
@@ -44,19 +44,50 @@ def generatePost(data, post, page):
                 page = page + "/"
 
             post = post.replace("%titlelink%","/"+page+"post/"+slug(x))
+            post = post.replace("%"+name+"%", x)
 
-        post = post.replace("%"+name+"%", x)
+        elif name == 'date':
+            config = getConfig("%date:",post)
+            if config == "none":
+                post = post.replace("%date:none%",x)
+            else:
+                post = post.replace(
+                    "%date:"+config+"%",
+                    time.strftime(config.replace("&","%"),time.strptime(x,"%Y-%m-%d")))
+                
+
+        else:
+            post = post.replace("%"+name+"%", x)
 
     return post
                 
 
 # Helper functions
 
-# slug("hi's") -> his- removes all "unwanted" characters and creates a URL-friendly slug
+# slug(string -> "hi's") -> his- removes all "unwanted" characters and creates a URL-friendly slug
 def slug(string):
-    invalidChars = ["<",">","#","%","{","}","|","\\","^","[","]","`","'",";","/","?",":","@","&","+",",","."]
+    invalidChars = [
+        "<",">","#","%","{","}",
+        "|","\\","^","[","]","`",
+        "'",";","/","?",":","@",
+        "&","+",",","."
+        ]
     for x in invalidChars:
         string = string.replace(x, "")
 
     string = string.replace(" ","_")
     return string.lower()
+
+# getConfig(string -> index, string -> data) -> gets "config" data ex. (%blah:<config>%)
+def getConfig(index,data):
+    retVal = ""
+    try:
+        pointer = data.index(index)+len(index)
+    except:
+        retVal = "-1"
+
+    while data[pointer] != "%" and retVal != "-1":
+        retVal = retVal + data[pointer]
+        pointer += 1
+    
+    return retVal

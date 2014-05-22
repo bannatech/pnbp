@@ -17,7 +17,7 @@ def main():
         except:
             print("Can't open file '{}'".format(v['template']))
 
-        template = generateTemplate(template,v['pagevar'])
+        template = generateTemplate(template,v['pagevar'],name)
 
         site[name] = runMod(template,v['pagemod'],name)
     
@@ -26,14 +26,24 @@ def main():
 # Adds in variables defined in pages.json
 #
 # t = raw template, var = "pagevar" variables in pages.json (<pagename> -> "pagevar")
-def generateTemplate(t,var):
+def generateTemplate(t,var,page):
+    if page == "index":
+        page = ""
+
+    t = t.replace("%page%",page)
     for search,replace in var.items():
         if search[0] == ":":
             try:
                 inc = open(replace).read()
+                inc = inc.replace("%page%", page)
+                for subsearch,subreplace in var.items():
+                    inc = inc.replace("%"+subsearch+"%",subreplace)
+
                 t = t.replace("%"+search+"%",inc)
+
             except:
                 print("Can't open file '{}'".format(replace))
+
         else:
             t = t.replace("%"+search+"%",replace)
 
