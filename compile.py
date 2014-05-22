@@ -31,6 +31,9 @@ def generateTemplate(t,var,page):
         page = ""
 
     t = t.replace("%page%",page)
+    
+    t = runInlineScript(t,page)
+    
     for search,replace in var.items():
         if search[0] == ":":
             try:
@@ -59,6 +62,24 @@ def runMod(t,var,page):
 
     return subpage
 
+def runInlineScript(template,page):
+    try:
+        index = template.index("{:")+2
+        exists = True
+    except:
+        exists = False
+
+    if exists:
+        script = ""
+        while template[index:index+2] != ":}":
+            script = script + template[index]
+            index += 1
+        returns = ""
+        exec script
+        template = template.replace(template[template.index("{:"):template.index(":}")+2],returns)
+    
+    return template
+
 # Builds the site off of a filestructure dictionary.
 
 def buildSite(site):
@@ -86,7 +107,20 @@ def buildSite(site):
                         open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
                     else:
                         open(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
-                
+        copytree("data/styles","site/styles")
+        copytree("data/images","site/images")
+        
+def copytree(src, dst, symlinks=False, ignore=None):
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            copytree(s, d, symlinks, ignore)
+        else:
+            if not os.path.exists(d) or os.stat(src).st_mtime - os.stat(dst).st_mtime > 1:
+                shutil.copy2(s, d)
 
 if __name__ == "__main__":
     print("Going through pages...")

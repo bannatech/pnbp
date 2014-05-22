@@ -1,9 +1,20 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>%title%</title>
+    <link rel="stylesheet" type="text/css" href="/styles/style.css" />
   </head>
   <body>
     %:header%
+    {:
+for i,x in pagedata.items():
+    l = i
+    if i == "index":
+        i = ""
+    i = "/"+i
+        
+    returns = returns + "<a href=\"{}\">{}</a>&nbsp;".format(i, l)
+    :}
     <div>
       %content%
     </div>
