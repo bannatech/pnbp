@@ -17,6 +17,11 @@ for i,x in pagedata.items():
         i = ""
     i = "/"+i
     returns = "<a class=\"{}\" href=\"{}\">{}</a>&nbsp;".format(c, i, l) + returns
+if page != "index":
+    page = page + "/"
+else:
+    page = ""
+returns = returns + "<a href=\"/{}all\">All posts</a>".format(page)
     :}
     <div>
       %content%

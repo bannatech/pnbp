@@ -30,6 +30,15 @@ def getPages(template,settings,name,page):
     for i in data:
         post = generatePost(i,temp,page)
         pages['post'][slug(i['title'])] = template.replace("%"+name+"%",post)
+    
+    # Generates archive based off of dates.
+    pages['archive'] = {}
+    a = ""
+    dates = {}
+    for i in data:
+        datedata = i['date'].split["-"]
+
+    pages['archive']['default'] = template.replace("%content%",a)
 
     return pages
 
