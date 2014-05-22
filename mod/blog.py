@@ -32,14 +32,30 @@ def getPages(template,settings,name,page):
         pages['post'][slug(i['title'])] = template.replace("%"+name+"%",post)
     
     # Generates archive based off of dates.
-    pages['archive'] = {}
     a = ""
     dates = {}
     for i in data:
-        datedata = i['date'].split["-"]
-
-    pages['archive']['default'] = template.replace("%content%",a)
-
+        datedata = i['date'].split("-")
+        if datedata[0] in dates:
+            if datedata[1] in dates[datedata[0]]:
+                dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+            else:
+                dates[datedata[0]][datedata[1]] = {}
+                dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+        else:
+            dates[datedata[0]] = {}
+            dates[datedata[0]][datedata[1]] = {}
+            dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+    a = "<ul>"
+    for year,months in sorted(dates.items(),reverse=True):
+        a = a + "<li>{}</li><li><ul>".format(year)
+        for month,days in sorted(months.items(),reverse=True):
+            a = a + "<li>{}</li><li><ul>".format(month)
+            for day,title in sorted(days.items(),reverse=True):
+                a = a + "<li>{} - <a href=\"{}\">{}</a></li>".format(day,slug(title),title)
+            a = a + "</ul></li>"
+        a = a + "</ul></li>"
+    pages['post']['default'] = template.replace("%content%", a)
     return pages
 
 

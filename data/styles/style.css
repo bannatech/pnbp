@@ -1,8 +1,26 @@
 body, div {
     width:900px;
     margin:0 auto;
+    font-family:sans-serif;
 }
 
-.current {
+a {
+    text-decoration:none;
+    color:#0000BB;
+}
+
+a:hover {
+    color:#9900FF;
+}
+
+a h1:hover {
+    color:#9900FF;
+}
+
+a:visited {
+    color:#0000BB;
+}
+
+a.current {
     border:2px solid black;
 }

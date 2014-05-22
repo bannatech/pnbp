@@ -7,7 +7,7 @@
   <body>
     %:header%
     {:
-for i,x in pagedata.items():
+for i,x in sorted(pagedata.items(),reverse=True):
     l = i
     if page == "":page = "index"
     if str(i) == page: c = "current"
@@ -21,7 +21,7 @@ if page != "index":
     page = page + "/"
 else:
     page = ""
-returns = returns + "<a href=\"/{}all\">All posts</a>".format(page)
+returns = returns + "<a href=\"/{}all\">All posts</a>&nbsp<a href=\"/{}post\">Archive</a>".format(page,page)
     :}
     <div>
       %content%
