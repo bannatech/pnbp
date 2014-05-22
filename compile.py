@@ -8,8 +8,6 @@
 import os, shutil, mod, json
 
 def main():
-    print("Going through pages...")
-
     site = {}
     
     #Loops through defined "sites"
@@ -17,8 +15,6 @@ def main():
         template = open(v['template']).read()
 
         template = generateTemplate(template,v['pagevar'])
-
-        print("page '{}' using template '{}'...".format(name,v['template']))
 
         site[name] = runMod(template,v['pagemod'],name)
     
@@ -80,6 +76,7 @@ def buildSite(site):
                 
 
 if __name__ == "__main__":
+    print("Going through pages...")
     pages = open("pages.json")
     pagedata = json.load(pages)
     pages.close()
