@@ -9,11 +9,14 @@
     {:
 for i,x in pagedata.items():
     l = i
+    if page == "":page = "index"
+    if str(i) == page: c = "current"
+    else: c = ""
+
     if i == "index":
         i = ""
     i = "/"+i
-        
-    returns = returns + "<a href=\"{}\">{}</a>&nbsp;".format(i, l)
+    returns = "<a class=\"{}\" href=\"{}\">{}</a>&nbsp;".format(c, i, l) + returns
     :}
     <div>
       %content%
