@@ -5,7 +5,7 @@
 '  Paul Longtine - paullongtine@gmail.com
 '
 '''
-import os, shutil, mod, json
+import os, sys, shutil, mod, json, time
 
 def main():
     site = {}
@@ -15,7 +15,8 @@ def main():
         try:
             template = open(v['template']).read()
         except:
-            print("Can't open file '{}'".format(v['template']))
+            print("{}: Can't open file '{}'".format(name,v['template']))
+            sys.exit()
 
         template = generateTemplate(template,v['pagevar'],name)
 
@@ -39,6 +40,7 @@ def generateTemplate(t,var,page):
             try:
                 inc = open(replace).read()
                 inc = inc.replace("%page%", page)
+                inc = runInlineScript(inc, page)
                 for subsearch,subreplace in var.items():
                     inc = inc.replace("%"+subsearch+"%",subreplace)
 
@@ -58,7 +60,15 @@ def generateTemplate(t,var,page):
 def runMod(t,var,page):
     subpage = {}
     for name, mdata in var.items():
-        subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
+        try:
+            subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
+        except Exception,e:
+            print("Error occured at {} using module {}:".format(page,mdata['mod']))
+            if type(e) == KeyError:
+                print("Missing attribute {}".format(e))
+            sys.exit()
+
+            
 
     return subpage
 
@@ -107,17 +117,19 @@ def buildSite(site):
                         open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
                     else:
                         open(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
-    shutil.copytree("data/admin","site/admin")
-    shutil.copytree("data/styles","site/styles")
-    shutil.copytree("data/images","site/images")
+
+    for i in os.listdir("data/static/"):
+        shutil.copytree("data/static/"+i,"site/"+i)
         
 if __name__ == "__main__":
     print("Going through pages...")
+    start = time.time()
     try:
         pages = open("pages.json")
     except:
-        print("Can't open file 'pages.json'")        
+        print("Can't open file 'pages.json'")
+        sys.exit()
     pagedata = json.load(pages)
     pages.close()
     main()
-    print("Finished.")
+    print("Finished in {} ms.".format((time.time()-start)*1000))
