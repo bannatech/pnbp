@@ -4,5 +4,5 @@
 	"pagemod":{"content":{"mod":"blog","settings":{"defaultPostCount":"0","data":"./data/index.json"}}}},
 "test":{"template":"templates/std.html",
 	"pagevar":{":header":"./includes/header.html","title":"This is THE test page"},
-	"pagemod":{"content":{"mod":"blog","settings":{"defaultPostCount":"1","data":"./data/test.json"}}}}
+	"pagemod":{"content":{"mod":"blog","settings":{"description":1,"defaultPostCount":"1","data":"./data/test.json"}}}}
 }

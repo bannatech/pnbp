@@ -4,6 +4,7 @@ def getPages(template,settings,name,page):
     pages = {}
     settings['postTemplate'] = settings.get("postTemplate","./templates/post.html")
     settings['defaultPostCount'] = settings.get("defaultPostCount","0")
+    settings['description'] = settings.get("description","0")
     data = json.load(open(settings['data']))
     temp = open(settings['postTemplate']).read()
 
@@ -20,8 +21,12 @@ def getPages(template,settings,name,page):
     # Generates index
     a = ""
     for i in data:
-        if int(settings['defaultPostCount']) == 0 or int(i['post']) >= posts-int(settings['defaultPostCount']) :
+        if int(settings['defaultPostCount']) == 0 or int(i['post']) >= posts-int(settings['defaultPostCount']):
+            back = i['content']
+            if settings['description'] != "0":
+                i['content'] = i['description']
             a = generatePost(i,temp,page) + a
+            i['content'] = back
 
     pages['default'] = template.replace("%"+name+"%",a)
 
@@ -35,19 +40,20 @@ def getPages(template,settings,name,page):
     a = ""
     dates = {}
     for i in data:
-        datedata = i['date'].split("-")
-        if datedata[0] in dates:
-            if datedata[1] in dates[datedata[0]]:
-                dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+        if 'date' in i:
+            datedata = i['date'].split("-")
+            if datedata[0] in dates:
+                if datedata[1] in dates[datedata[0]]:
+                    dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+
+                else:
+                    dates[datedata[0]][datedata[1]] = {}
+                    dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
 
             else:
+                dates[datedata[0]] = {}
                 dates[datedata[0]][datedata[1]] = {}
                 dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
-
-        else:
-            dates[datedata[0]] = {}
-            dates[datedata[0]][datedata[1]] = {}
-            dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
 
     a = "<ul>"
     for year,months in sorted(dates.items(),reverse=True):
@@ -70,12 +76,12 @@ def generatePost(data, post, page):
     for name,x in data.items():
         if name == 'title':
             if page == "index":
-                page = ""
+                linkpage = ""
 
             else:
-                page = page + "/"
+                linkpage = page + "/"
 
-            post = post.replace("%titlelink%","/"+page+"post/"+slug(x))
+            post = post.replace("%titlelink%","/"+linkpage+"post/"+slug(x))
             post = post.replace("%"+name+"%", x)
 
         elif name == 'date':
@@ -88,7 +94,8 @@ def generatePost(data, post, page):
                 post = post.replace(
                     "%date:"+config+"%",
                     time.strftime(config.replace("&","%"),time.strptime(x,"%Y-%m-%d")))
-                
+        elif name == 'description':
+            pass
 
         else:
             post = post.replace("%"+name+"%", x)
