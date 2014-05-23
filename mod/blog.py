@@ -55,7 +55,7 @@ def getPages(template,settings,name,page):
                 dates[datedata[0]][datedata[1]] = {}
                 dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
 
-    a = "<ul>"
+    a = "<div id=\"archives\"><ul>"
     for year,months in sorted(dates.items(),reverse=True):
         a = a + "<li>{}</li><li><ul>".format(year)
         for month,days in sorted(months.items(),reverse=True):
@@ -66,7 +66,7 @@ def getPages(template,settings,name,page):
             a = a + "</ul></li>"
 
         a = a + "</ul></li>"
-
+    a = a + "</div>"
     pages['post']['default'] = template.replace("%content%", a)
     return pages
 
