@@ -39,13 +39,16 @@ def getPages(template,settings,name,page):
         if datedata[0] in dates:
             if datedata[1] in dates[datedata[0]]:
                 dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+
             else:
                 dates[datedata[0]][datedata[1]] = {}
                 dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+
         else:
             dates[datedata[0]] = {}
             dates[datedata[0]][datedata[1]] = {}
             dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+
     a = "<ul>"
     for year,months in sorted(dates.items(),reverse=True):
         a = a + "<li>{}</li><li><ul>".format(year)
@@ -53,8 +56,11 @@ def getPages(template,settings,name,page):
             a = a + "<li>{}</li><li><ul>".format(month)
             for day,title in sorted(days.items(),reverse=True):
                 a = a + "<li>{} - <a href=\"{}\">{}</a></li>".format(day,slug(title),title)
+
             a = a + "</ul></li>"
+
         a = a + "</ul></li>"
+
     pages['post']['default'] = template.replace("%content%", a)
     return pages
 
@@ -65,6 +71,7 @@ def generatePost(data, post, page):
         if name == 'title':
             if page == "index":
                 page = ""
+
             else:
                 page = page + "/"
 
@@ -75,6 +82,8 @@ def generatePost(data, post, page):
             config = getConfig("%date:",post)
             if config == "none":
                 post = post.replace("%date:none%",x)
+            elif config == "-1":
+                post = post.replace("%date%",x)
             else:
                 post = post.replace(
                     "%date:"+config+"%",
@@ -110,9 +119,8 @@ def getConfig(index,data):
         pointer = data.index(index)+len(index)
     except:
         retVal = "-1"
-
-    while data[pointer] != "%" and retVal != "-1":
-        retVal = retVal + data[pointer]
-        pointer += 1
-    
+    if retVal != "-1":
+        while data[pointer] != "%" and retVal != "-1":
+            retVal = retVal + data[pointer]
+            pointer += 1
     return retVal
