@@ -1,0 +1,32 @@
+<div>
+{:
+if page == "":
+    page = "index"
+data = json.load(open(pagedata[page]['pagemod']['content']['settings']['data']))
+a = ""
+dates = {}
+for i in data:
+    if 'date' in i:
+        datedata = i['date'].split("-")
+        if datedata[0] in dates:
+            if datedata[1] in dates[datedata[0]]:
+                dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+            else:
+                dates[datedata[0]][datedata[1]] = {}
+                dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+        else:
+            dates[datedata[0]] = {}
+            dates[datedata[0]][datedata[1]] = {}
+            dates[datedata[0]][datedata[1]][datedata[2]] = i['title']
+a = "<div id=\"archives\"><ul>"
+for year,months in sorted(dates.items(),reverse=True):
+    a = a + "<li>{}</li><li><ul>".format(year)
+    for month,days in sorted(months.items(),reverse=True):
+        a = a + "<li>{}</li><li><ul>".format(month)
+        for day,title in sorted(days.items(),reverse=True):
+            a = a + "<li>{} - <a href=\"{}\">{}</a></li>".format(day,"",title)
+        a = a + "</ul></li>"
+    a = a + "</ul></li>"
+returns = a + "</div>"
+:}
+</div>

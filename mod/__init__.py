@@ -1,2 +1,2 @@
 #Imports all mods from mod/
-import blog
+import blog, page

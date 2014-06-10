@@ -37,17 +37,13 @@ def generateTemplate(t,var,page):
     
     for search,replace in var.items():
         if search[0] == ":":
-            try:
-                inc = open(replace).read()
-                inc = inc.replace("%page%", page)
-                inc = runInlineScript(inc, page)
-                for subsearch,subreplace in var.items():
-                    inc = inc.replace("%"+subsearch+"%",subreplace)
-
-                t = t.replace("%"+search+"%",inc)
-
-            except:
-                print("Can't open file '{}'".format(replace))
+            inc = open(replace).read()
+            inc = inc.replace("%page%", page)
+            inc = runInlineScript(inc, page)
+            for subsearch,subreplace in var.items():
+                inc = inc.replace("%"+subsearch+"%",subreplace)
+                
+            t = t.replace("%"+search+"%",inc)
 
         else:
             t = t.replace("%"+search+"%",replace)
@@ -60,15 +56,14 @@ def generateTemplate(t,var,page):
 def runMod(t,var,page):
     subpage = {}
     for name, mdata in var.items():
-        try:
-            subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
-        except Exception,e:
-            print("Error occured at {} using module {}:".format(page,mdata['mod']))
-            if type(e) == KeyError:
-                print("Missing attribute {}".format(e))
-            sys.exit()
-
-            
+        if name != "page":
+            try:
+                subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
+            except Exception,e:
+                print("Error occured at {} using module {}:".format(page,mdata['mod']))
+                if type(e) == KeyError:
+                    print("Missing attribute {}".format(e))
+                    sys.exit()
 
     return subpage
 
