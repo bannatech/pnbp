@@ -14,13 +14,14 @@ def main():
     for name,v in pagedata.items():
         try:
             template = open(v['template']).read()
+
         except:
             print("{}: Can't open file '{}'".format(name,v['template']))
             sys.exit()
 
         template = generateTemplate(template,v['pagevar'],name)
 
-        site[name] = runMod(template,v['pagemod'],name)
+        site[name] = runMod(template,v,name)
     
     buildSite(site)
 
@@ -55,22 +56,40 @@ def generateTemplate(t,var,page):
 # t = raw template, var = "pagemod" variables in pages.json (<pagename> -> "pagemod")
 def runMod(t,var,page):
     subpage = {}
-    for name, mdata in var.items():
-        if name != "page":
+    for name, mdata in var['pagemod'].items():
+        if mdata['mod'] != "page":
             try:
                 subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
+
             except Exception,e:
                 print("Error occured at {} using module {}:".format(page,mdata['mod']))
                 if type(e) == KeyError:
                     print("Missing attribute {}".format(e))
                     sys.exit()
 
+                else:
+                    print(e)
+
+        elif mdata['mod'] == "page":
+            try:
+                template = open(mdata['settings']['template'])
+
+            except:
+                print("Error occured at {} using module page".format(page))
+                print("Cannot open file {}".format(mdata['settings']['templates']))
+                sys.exit()
+
+            template = generateTemplate(template,var['pagevar'].update(mdata['settings']['pagevar']),name)
+            template = runInlineScript(template,name)
+            subpage.update({mdata['settings']['location']:template})
+            
     return subpage
 
 def runInlineScript(template,page):
     try:
         index = template.index("{:")+2
         exists = True
+
     except:
         exists = False
 
@@ -79,6 +98,7 @@ def runInlineScript(template,page):
         while template[index:index+2] != ":}":
             script = script + template[index]
             index += 1
+
         returns = ""
         exec script
         template = template.replace(template[template.index("{:"):template.index(":}")+2],returns)
@@ -97,6 +117,7 @@ def buildSite(site):
     for page, subpages in site.items():
         if page == "index":
             currentDir = "./site"
+
         else:
             currentDir = "./site/"+page
             os.mkdir(currentDir)
@@ -110,6 +131,7 @@ def buildSite(site):
                     if page != "default":
                         os.mkdir(currentDir+"/"+subdir+"/"+page)
                         open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
+
                     else:
                         open(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
 
@@ -121,9 +143,11 @@ if __name__ == "__main__":
     start = time.time()
     try:
         pages = open("pages.json")
+
     except:
         print("Can't open file 'pages.json'")
         sys.exit()
+
     pagedata = json.load(pages)
     pages.close()
     main()
