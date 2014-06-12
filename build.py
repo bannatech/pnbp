@@ -13,7 +13,7 @@ def main():
     #Loops through defined "sites"
     for name,v in pagedata.items():
         try:
-            template = open(v['template']).read()
+            template = file(v['template']).read()
 
         except:
             print("{}: Can't open file '{}'".format(name,v['template']))
@@ -44,13 +44,9 @@ def generateTemplate(t,var,page):
             except:
                 exists = False
             if exists:
-                inc = open(replace).read()
-                inc = inc.replace("%page%", page)
-                inc = runInlineScript(inc, page)
-                for subsearch,subreplace in var.items():
-                    inc = inc.replace("%"+subsearch+"%",subreplace)
-                
-                    t = t.replace("%"+search+"%",inc)
+                inc = file(replace).read()
+                inc = generateTemplate(inc,var,page)
+                t = t.replace("%"+search+"%",inc)
 
         else:
             t = t.replace("%"+search+"%",replace)
@@ -78,7 +74,7 @@ def runMod(t,var,page):
 
         elif mdata['mod'] == "page":
             try:
-                template = open(mdata['settings']['template']).read()
+                template = file(mdata['settings']['template']).read()
 
             except:
                 print("Error occured at {} using module page".format(page))
@@ -91,7 +87,12 @@ def runMod(t,var,page):
             if mdata['settings']['location'] == "":
                 t = {'default':template}
             else:
-                pass
+                t = {}
+                temp = {}
+                for i in mdata['settings']['location'].split("/"):
+                    temp[i] = {}
+                    
+
             subpage.update(t)
             
     return subpage
@@ -141,10 +142,10 @@ def buildSite(site):
                 for page, content in data.items():
                     if page != "default":
                         os.mkdir(currentDir+"/"+subdir+"/"+page)
-                        open(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
+                        file(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
 
                     else:
-                        open(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
+                        file(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
 
     for i in os.listdir("data/static/"):
         shutil.copytree("data/static/"+i,"site/"+i)

@@ -5,8 +5,8 @@ def getPages(template,settings,name,page):
     settings['postTemplate'] = settings.get("postTemplate","./templates/post.html")
     settings['defaultPostCount'] = settings.get("defaultPostCount","0")
     settings['description'] = settings.get("description","0")
-    data = json.load(open(settings['data']))
-    temp = open(settings['postTemplate']).read()
+    data = json.load(file(settings['data']))
+    temp = file(settings['postTemplate']).read()
 
     # Generates all posts on page (/all
     a = ""
