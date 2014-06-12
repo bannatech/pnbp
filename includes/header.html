@@ -11,10 +11,5 @@ for i,x in sorted(pagedata.items(),reverse=True):
         i = ""
     i = "/"+i
     returns = "<a class=\"{}\" href=\"{}\">{}</a>&nbsp;".format(c, i, l) + returns
-if page != "index":
-    page = page + "/"
-else:
-    page = ""
-returns = returns + "<a href=\"/{}all\">All posts</a>&nbsp<a href=\"/{}post\">Archive</a>".format(page,page)
   :}
 </div>

@@ -33,18 +33,24 @@ def generateTemplate(t,var,page):
         page = ""
 
     t = t.replace("%page%",page)
-    
+
     t = runInlineScript(t,page)
     
     for search,replace in var.items():
         if search[0] == ":":
-            inc = open(replace).read()
-            inc = inc.replace("%page%", page)
-            inc = runInlineScript(inc, page)
-            for subsearch,subreplace in var.items():
-                inc = inc.replace("%"+subsearch+"%",subreplace)
+            try:
+                t.index("%"+search+"%")
+                exists = True
+            except:
+                exists = False
+            if exists:
+                inc = open(replace).read()
+                inc = inc.replace("%page%", page)
+                inc = runInlineScript(inc, page)
+                for subsearch,subreplace in var.items():
+                    inc = inc.replace("%"+subsearch+"%",subreplace)
                 
-            t = t.replace("%"+search+"%",inc)
+                    t = t.replace("%"+search+"%",inc)
 
         else:
             t = t.replace("%"+search+"%",replace)
@@ -72,16 +78,21 @@ def runMod(t,var,page):
 
         elif mdata['mod'] == "page":
             try:
-                template = open(mdata['settings']['template'])
+                template = open(mdata['settings']['template']).read()
 
             except:
                 print("Error occured at {} using module page".format(page))
-                print("Cannot open file {}".format(mdata['settings']['templates']))
+                print("Cannot open file {}".format(mdata['settings']['template']))
                 sys.exit()
 
-            template = generateTemplate(template,var['pagevar'].update(mdata['settings']['pagevar']),name)
-            template = runInlineScript(template,name)
-            subpage.update({mdata['settings']['location']:template})
+            pv = var['pagevar']
+            pv.update(mdata['settings']['pagevar'])
+            template = generateTemplate(template,pv,name)
+            if mdata['settings']['location'] == "":
+                t = {'default':template}
+            else:
+                pass
+            subpage.update(t)
             
     return subpage
 
@@ -100,7 +111,7 @@ def runInlineScript(template,page):
             index += 1
 
         returns = ""
-        exec script
+        exec(script)
         template = template.replace(template[template.index("{:"):template.index(":}")+2],returns)
     
     return template

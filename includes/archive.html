@@ -2,6 +2,8 @@
 {:
 if page == "":
     page = "index"
+elif page =="archive":
+    page = "index"
 data = json.load(open(pagedata[page]['pagemod']['content']['settings']['data']))
 a = ""
 dates = {}
@@ -24,7 +26,7 @@ for year,months in sorted(dates.items(),reverse=True):
     for month,days in sorted(months.items(),reverse=True):
         a = a + "<li>{}</li><li><ul>".format(month)
         for day,title in sorted(days.items(),reverse=True):
-            a = a + "<li>{} - <a href=\"{}\">{}</a></li>".format(day,"",title)
+            a = a + "<li>{} - <a href=\"../post/{}\">{}</a></li>".format(day,mod.blog.slug(title),title)
         a = a + "</ul></li>"
     a = a + "</ul></li>"
 returns = a + "</div>"
