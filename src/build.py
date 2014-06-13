@@ -101,22 +101,25 @@ def runMod(t,var,page):
 
 #Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
 def runInlineScript(template,page):
-    try:
-        index = template.index("{:")+2
-        exists = True
+    exists = True
+    while exists:
+        try:
+            index = template.index("{:")+2
+            findex = index
+            exists = True
+            
+        except:
+            exists = False
 
-    except:
-        exists = False
+        if exists:
+            script = ""
+            while template[index:index+2] != ":}":
+                script = script + template[index]
+                index += 1
 
-    if exists:
-        script = ""
-        while template[index:index+2] != ":}":
-            script = script + template[index]
-            index += 1
-
-        returns = ""
-        exec(script)
-        template = template.replace(template[template.index("{:"):template.index(":}")+2],returns)
+            returns = ""
+            exec(script)
+            template = template.replace(template[findex-2:index+2],returns)
     
     return template
 
