@@ -135,7 +135,10 @@ def buildSite(site):
 
         else:
             currentDir = "./site/"+page
-            os.mkdir(currentDir)
+            try:
+                os.mkdir(currentDir)
+            except:
+                pass
         
         subpageLoop(subpages,currentDir)
 
