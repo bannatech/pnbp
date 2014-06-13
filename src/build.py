@@ -5,7 +5,7 @@
 '  Paul Longtine - paullongtine@gmail.com
 '
 '''
-import os, sys, shutil, mod, json, time
+import os, sys, shutil, module, json, time
 
 def main():
     site = {}
@@ -41,8 +41,10 @@ def generateTemplate(t,var,page):
             try:
                 t.index("%"+search+"%")
                 exists = True
+
             except:
                 exists = False
+
             if exists:
                 inc = file(replace).read()
                 inc = generateTemplate(inc,var,page)
@@ -61,7 +63,8 @@ def runMod(t,var,page):
     for name, mdata in var['pagemod'].items():
         if mdata['mod'] != "page":
             try:
-                subpage.update(getattr(mod,mdata['mod']).getPages(t,mdata['settings'],name,page))
+                #Runs module specified in settings
+                subpage.update(getattr(module,mdata['mod']).getPages(t,mdata['settings'],name,page))
 
             except Exception,e:
                 print("Error occured at {} using module {}:".format(page,mdata['mod']))
@@ -73,6 +76,7 @@ def runMod(t,var,page):
                     print(e)
 
         elif mdata['mod'] == "page":
+            #Built-in module page, takes configuration settings and builds a page at a location
             try:
                 template = file(mdata['settings']['template']).read()
 
@@ -86,17 +90,15 @@ def runMod(t,var,page):
             template = generateTemplate(template,pv,name)
             if mdata['settings']['location'] == "":
                 t = {'default':template}
+
             else:
-                t = {}
-                temp = {}
-                for i in mdata['settings']['location'].split("/"):
-                    temp[i] = {}
-                    
+                t = {mdata['settings']['location']:{'default':template}}
 
             subpage.update(t)
             
     return subpage
 
+#Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
 def runInlineScript(template,page):
     try:
         index = template.index("{:")+2
@@ -118,10 +120,10 @@ def runInlineScript(template,page):
     return template
 
 # Builds the site off of a filestructure dictionary.
-
 def buildSite(site):
     try:
         shutil.rmtree("./site/")
+
     except:
         print("No directory site/, ignoring")
 
@@ -133,23 +135,42 @@ def buildSite(site):
         else:
             currentDir = "./site/"+page
             os.mkdir(currentDir)
-
-        open(currentDir+"/index.html", "w").write(subpages['default'])
-
-        for subdir, data in subpages.items():
-            if subdir != "default":
-                os.mkdir(currentDir+"/"+subdir)
-                for page, content in data.items():
-                    if page != "default":
-                        os.mkdir(currentDir+"/"+subdir+"/"+page)
-                        file(currentDir+"/"+subdir+"/"+page+"/index.html","w").write(content)
-
-                    else:
-                        file(currentDir+"/"+subdir+"/index.html", "w").write(data['default'])
+        
+        subpageLoop(subpages,currentDir)
 
     for i in os.listdir("data/static/"):
         shutil.copytree("data/static/"+i,"site/"+i)
         
+#Recursive loop through all subpages
+#d = dict of all subpages, cd = Current directory
+def subpageLoop(d,currentDir):
+    for k, v in d.iteritems():
+        if isinstance(v, dict):
+            subpageLoop(v,currentDir + "/" + k)
+        else:
+            if k == "default":
+                k = ""
+
+            else:
+                k = k + "/"
+
+            try:
+                file("{}/{}index.html".format(currentDir,k), "w").write(v)
+
+            except:
+                try:
+                    os.mkdir("{}".format(currentDir))
+
+                except:
+                    pass
+
+                try:
+                    os.mkdir("{}/{}".format(currentDir,k))
+                except:
+                    pass
+
+                file("{}/{}index.html".format(currentDir,k), "w").write(v)
+
 if __name__ == "__main__":
     print("Going through pages...")
     start = time.time()
@@ -162,5 +183,13 @@ if __name__ == "__main__":
 
     pagedata = json.load(pages)
     pages.close()
-    main()
+    try:
+        main()
+    except Exception,e:
+        if type(e) == KeyError:
+            print("Missing or mistyped value: {}".format(e))
+        else:
+            print("Something went wrong...")
+            print(e)
+        sys.exit()
     print("Finished in {} ms.".format((time.time()-start)*1000))
