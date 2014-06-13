@@ -1,0 +1,37 @@
+---
+  index:
+    template: "templates/std.html"
+    pagevar:
+      :header: "./includes/header.html"
+      title: "This is a test page"
+    pagemod:
+      content:
+        mod: "blog"
+        settings:
+          defaultPostCount: "0"
+          data: "./data/index.json"
+  archive:
+    template: "templates/archive.html"
+    pagevar:
+      :header: "./includes/header.html"
+      title: "This is a test page"
+    pagemod:
+      archive:
+        mod: "page"
+        settings:
+          pagevar:
+            :archive: "./includes/archive.html"
+          location: ""
+          template: "templates/archive.html"
+  test:
+    template: "templates/std.html"
+    pagevar:
+      :header: "./includes/header.html"
+      title: "This is THE test page"
+    pagemod:
+      content:
+        mod: "blog"
+        settings:
+          description: 1
+          defaultPostCount: "1"
+          data: "./data/test.json"

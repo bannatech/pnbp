@@ -6,7 +6,7 @@
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
-import os, sys, shutil, module, json, time
+import os, sys, shutil, module, json, yaml, time
 
 def main():
     site = {}
@@ -185,13 +185,13 @@ if __name__ == "__main__":
     print("Going through pages...")
     start = time.time()
     try:
-        pages = open("pages.json")
+        pages = open("pages")
 
     except:
-        print("Can't open file 'pages.json'")
+        print("Can't open file 'pages'")
         sys.exit()
 
-    pagedata = json.load(pages)
+    pagedata = yaml.load(pages)
     pages.close()
     try:
         main()
