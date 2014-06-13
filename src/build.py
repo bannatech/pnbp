@@ -4,6 +4,7 @@
 '  
 '  Paul Longtine - paullongtine@gmail.com
 '
+'  For documentation, please visit http://static.nanner.co/pnbp
 '''
 import os, sys, shutil, module, json, time
 
@@ -139,7 +140,10 @@ def buildSite(site):
         subpageLoop(subpages,currentDir)
 
     for i in os.listdir("data/static/"):
-        shutil.copytree("data/static/"+i,"site/"+i)
+        try:
+            shutil.copytree("data/static/"+i,"site/"+i)
+        except:
+            shutil.copy2("data/static/"+i,"site/"+i)
         
 #Recursive loop through all subpages
 #d = dict of all subpages, cd = Current directory
