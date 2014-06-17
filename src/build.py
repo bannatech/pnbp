@@ -185,10 +185,10 @@ if __name__ == "__main__":
     print("Going through pages...")
     start = time.time()
     try:
-        pages = open("pages")
+        pages = open("pages.yml")
 
     except:
-        print("Can't open file 'pages'")
+        print("Can't open file 'pages.yml'")
         sys.exit()
 
     pagedata = yaml.load(pages)

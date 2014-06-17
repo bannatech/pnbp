@@ -18,3 +18,5 @@ emacs-config.el
 
 #Don't want to upload the site, do we?
 site/
+#Or the admin page...
+admin/
