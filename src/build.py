@@ -23,8 +23,11 @@ def main():
         template = generateTemplate(template,v['pagevar'],name)
 
         site[name] = runMod(template,v,name)
-    
-    buildSite(site)
+
+    if len(sys.argv) > 1:
+        buildSite(site,sys.argv[1])
+    else:
+        buildSite(site,"site/")
 
 # Adds in variables defined in pages.json
 #
@@ -124,32 +127,45 @@ def runInlineScript(template,page):
     return template
 
 # Builds the site off of a filestructure dictionary.
-def buildSite(site):
+def buildSite(site,loc):
     try:
-        shutil.rmtree("./site/")
+        shutil.rmtree(loc)
 
     except:
-        print("No directory site/, ignoring")
+        print("No directory {}, ignoring".format(loc))
 
-    os.mkdir("./site/")
+    os.mkdir(loc)
     for page, subpages in site.items():
         if page == "index":
-            currentDir = "./site"
+            if loc[-1] == "/":
+                currentDir = loc[0:-1]
+
+            else:
+                currentDir = loc
 
         else:
-            currentDir = "./site/"+page
+            if loc[-1] == "/":
+                currentDir = loc+page
+
+            else:
+                currentDir = loc+"/"+page
+
             try:
                 os.mkdir(currentDir)
+
             except:
                 pass
         
         subpageLoop(subpages,currentDir)
 
+    if loc[-1] != "/":
+        loc = loc + "/"
     for i in os.listdir("data/static/"):
         try:
-            shutil.copytree("data/static/"+i,"site/"+i)
+            shutil.copytree("data/static/"+i,loc+i)
+
         except:
-            shutil.copy2("data/static/"+i,"site/"+i)
+            shutil.copy2("data/static/"+i,loc+i)
         
 #Recursive loop through all subpages
 #d = dict of all subpages, cd = Current directory
@@ -198,8 +214,11 @@ if __name__ == "__main__":
     except Exception,e:
         if type(e) == KeyError:
             print("Missing or mistyped value: {}".format(e))
+
         else:
             print("Something went wrong...")
             print(e)
+
         sys.exit()
+
     print("Finished in {} ms.".format((time.time()-start)*1000))
