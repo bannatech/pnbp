@@ -5,8 +5,6 @@ pnbp is a simple, scriptable and extendable platform to generate static websites
 
 I can't possibly use someone elses software for static website generation, so I made my own.
 
-***
-
 #Installing
 
 ##Dependencies:
@@ -17,13 +15,15 @@ I can't possibly use someone elses software for static website generation, so I 
 
 ##How to install
 
-    # Clone the repository
-    $ git clone https://github.com/bannana/pnbp.git
+```bash
+# Clone the repository
+$ git clone https://github.com/bannana/pnbp.git
   
-    $ cd pnbp
-    # Install pnbp
-    $ sudo sh install.sh
-  
+$ cd pnbp
+# Install pnbp
+$ sudo sh install.sh
+```
+
 #Basic usage
 
 In the directory of a configured site, run the `build` command to generate the site into the `site/` directory.
