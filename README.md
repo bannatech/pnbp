@@ -17,12 +17,12 @@ I can't possibly use someone elses software for static website generation, so I 
 
 ##How to install
 
-  # Clone the repository
-  $ git clone https://github.com/bannana/pnbp.git
+    # Clone the repository
+    $ git clone https://github.com/bannana/pnbp.git
   
-  $ cd pnbp
-  # Install pnbp
-  $ sudo sh install.sh
+    $ cd pnbp
+    # Install pnbp
+    $ sudo sh install.sh
   
 #Basic usage
 
