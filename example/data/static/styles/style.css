@@ -10,11 +10,11 @@ a {
 }
 
 a:hover {
-    color:#9900FF;
+    text-decoration:underline;
 }
 
 a h1:hover {
-    color:#9900FF;
+    text-decoration:underline;
 }
 
 a:visited {
