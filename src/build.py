@@ -6,28 +6,11 @@
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
-import os, sys, shutil, module, json, yaml, time
-
-def main():
-    site = {}
-    
-    #Loops through defined "sites"
-    for name,v in pagedata.items():
-        try:
-            template = file(v['template']).read()
-
-        except:
-            print("{}: Can't open file '{}'".format(name,v['template']))
-            sys.exit()
-
-        template = generateTemplate(template,v['pagevar'],name)
-
-        site[name] = runMod(template,v,name)
-
-    if len(sys.argv) > 1:
-        buildSite(site,sys.argv[1])
-    else:
-        buildSite(site,"site/")
+#Core imports
+import os, sys, shutil,json, yaml, time
+#Helper imports
+import module
+from functions import *
 
 # Adds in variables defined in pages.json
 #
@@ -99,7 +82,7 @@ def runMod(t,var,page):
                 t = {mdata['settings']['location']:{'default':template}}
 
             subpage.update(t)
-            
+
     return subpage
 
 #Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
@@ -196,6 +179,28 @@ def subpageLoop(d,currentDir):
                     pass
 
                 file("{}/{}index.html".format(currentDir,k), "w").write(v)
+
+def main():
+    site = {}
+    
+    #Loops through defined "sites"
+    for name,v in pagedata.items():
+        try:
+            template = file(v['template']).read()
+
+        except:
+            print("{}: Can't open file '{}'".format(name,v['template']))
+            sys.exit()
+
+        template = generateTemplate(template,v['pagevar'],name)
+
+        site[name] = runMod(template,v,name)
+
+    if len(sys.argv) > 1:
+        buildSite(site,sys.argv[1])
+    else:
+        buildSite(site,"site/")
+
 
 if __name__ == "__main__":
     print("Going through pages...")

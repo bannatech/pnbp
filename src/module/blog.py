@@ -1,4 +1,4 @@
-import json, time
+import json,time
 
 def getPages(template,settings,name,page):
     pages = {}
@@ -8,7 +8,7 @@ def getPages(template,settings,name,page):
     data = json.load(file(settings['data']))
     temp = file(settings['postTemplate']).read()
 
-    # Generates all posts on page (/all
+    # Generates all posts on page (/all)
     a = ""
     posts = 0
     for i in data:
