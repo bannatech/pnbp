@@ -7,7 +7,7 @@
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 #Core imports
-import os, sys, shutil,json, yaml, time
+import os, sys, shutil,json, yaml, time, traceback
 #Helper imports
 import module
 from functions import *
@@ -64,22 +64,35 @@ def runMod(t,var,page):
 
         elif mdata['mod'] == "page":
             #Built-in module page, takes configuration settings and builds a page at a location
-            try:
-                template = file(mdata['settings']['template']).read()
+            if 'settings' in mdata:
+                try:
+                    if 'template' in mdata['settings']:
+                        template = file(mdata['settings']['template']).read()
 
-            except:
-                print("Error occured at {} using module page".format(page))
-                print("Cannot open file {}".format(mdata['settings']['template']))
-                sys.exit()
+                except:
+                    print("Error occured at {} using module page".format(page))
+                    print("Cannot open file {}".format(mdata['settings']['template']))
+                    sys.exit()
+            else:
+                template = t
 
-            pv = var['pagevar']
-            pv.update(mdata['settings']['pagevar'])
-            template = generateTemplate(template,pv,name)
-            if mdata['settings']['location'] == "":
+            if 'pagevar' in var:
+                pv = var['pagevar']
+                if 'settings' in mdata:
+                    if 'pagevar' in mdata['settings']:
+                        pv.update(mdata['settings']['pagevar'])
+
+                template = generateTemplate(template,pv,name)
+
+            else:
+                template = runInlineScript(template,name)
+            
+            if not 'settings' == mdata:
                 t = {'default':template}
 
             else:
-                t = {mdata['settings']['location']:{'default':template}}
+                if 'location' in mdata:
+                    t = {mdata['settings']['location']:{'default':template}}
 
             subpage.update(t)
 
@@ -143,13 +156,16 @@ def buildSite(site,loc):
 
     if loc[-1] != "/":
         loc = loc + "/"
-    for i in os.listdir("data/static/"):
-        try:
-            shutil.copytree("data/static/"+i,loc+i)
+    try:
+        for i in os.listdir("data/static/"):
+            try:
+                shutil.copytree("data/static/"+i,loc+i)
+                
+            except:
+                shutil.copy2("data/static/"+i,loc+i)
+    except:
+        print("No directory data/static, ignoring")
 
-        except:
-            shutil.copy2("data/static/"+i,loc+i)
-        
 #Recursive loop through all subpages
 #d = dict of all subpages, cd = Current directory
 def subpageLoop(d,currentDir):
@@ -191,8 +207,10 @@ def main():
         except:
             print("{}: Can't open file '{}'".format(name,v['template']))
             sys.exit()
-
-        template = generateTemplate(template,v['pagevar'],name)
+        if 'pagevar' in v:
+            template = generateTemplate(template,v['pagevar'],name)
+        else:
+            template = runInlineScript(template,name)
 
         site[name] = runMod(template,v,name)
 
@@ -219,6 +237,7 @@ if __name__ == "__main__":
     except Exception,e:
         if type(e) == KeyError:
             print("Missing or mistyped value: {}".format(e))
+            traceback.print_exc(file=sys.stdout)
 
         else:
             print("Something went wrong...")
