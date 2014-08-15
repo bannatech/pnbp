@@ -9,7 +9,7 @@
 #Core imports
 import os, sys, shutil,json, yaml, time, traceback
 #Helper imports
-import module
+import module, initbasic
 from functions import *
 
 # Adds in variables defined in pages.json
@@ -207,6 +207,7 @@ def main():
         except:
             print("{}: Can't open file '{}'".format(name,v['template']))
             sys.exit()
+
         if 'pagevar' in v:
             template = generateTemplate(template,v['pagevar'],name)
         else:
@@ -214,13 +215,25 @@ def main():
 
         site[name] = runMod(template,v,name)
 
-    if len(sys.argv) > 1:
-        buildSite(site,sys.argv[1])
-    else:
-        buildSite(site,"site/")
-
+    buildSite(site,buildDir)
 
 if __name__ == "__main__":
+    buildDir = "site/"
+    init = False
+
+    if len(sys.argv) > 1:
+        for i in sys.argv:
+            if i[0] != "-" and i != sys.argv[0]:
+                buildDir = i
+
+            elif i == "--init":
+                init = True
+            else:
+                print("Unknown option: {}".format(i))
+
+    if init:
+        initbasic.init()
+
     print("Going through pages...")
     start = time.time()
     try:
@@ -237,12 +250,12 @@ if __name__ == "__main__":
     except Exception,e:
         if type(e) == KeyError:
             print("Missing or mistyped value: {}".format(e))
-            traceback.print_exc(file=sys.stdout)
 
         else:
             print("Something went wrong...")
             print(e)
-
+        
+        traceback.print_exc(file=sys.stdout)
         sys.exit()
 
     print("Finished in {} ms.".format((time.time()-start)*1000))
