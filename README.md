@@ -26,8 +26,6 @@ $ sudo sh install.sh
 
 #Basic usage
 
-In the directory of a configured site, run the `build` command to generate the site into the `site/` directory.
-
-To specify the destination directory, pass the path in as an arguement of the `build [path]` command.
+To set up a basic site, run `build -i`
 
 For information regarding configration documentation, please refer to the [documentation](http://pnbp.nanner.co).

@@ -8,6 +8,7 @@
 import os, shutil
 
 # Builds the site off of a filestructure dictionary.
+#site = dict of site directory tree/pages, loc = root of site
 def buildSite(site,loc):
     try:
         shutil.rmtree(loc)

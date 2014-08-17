@@ -1,19 +1,22 @@
-#!/usr/bin/python
 '''
 '  pnbp - pnbp is not a blogging platform
-'  build.py
+'  core.py
 '  Paul Longtine - paullongtine@gmail.com
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 #Core imports
-import os, sys, shutil, json, yaml, time, traceback
+import os, sys, json, yaml
 
 #Helper imports
 import module
 from buildsite import *
 from functions import *
-from initbasic import *
+
+#Global variables
+
+pages = ""
+pagedata = {}
 
 # Adds in variables defined in pages.json
 #
@@ -74,14 +77,19 @@ def runInlineScript(template,page):
 # t = raw template, var = "pagemod" variables in pages.json (<pagename> -> "pagemod")
 def runMod(t,var,page):
     subpage = {}
-    for name, mdata in var['pagemod'].items():
-        if mdata['mod'] != "page":
+    for name, meta in var['pagemod'].items():
+        if meta['mod'] != "page":
+            if not "settings" in meta: meta['settings'] = {}
             try:
                 #Runs module specified in settings
-                subpage.update(getattr(module,mdata['mod']).getPages(t,mdata['settings'],name,page))
+                subpage.update(
+                    getattr(module, meta['mod']).getPages(
+                        t, meta['settings'], name, page
+                    )
+                )
 
             except Exception,e:
-                print("Error occured at {} using module {}:".format(page,mdata['mod']))
+                print("Error occured at {} using module {}:".format(page,meta['mod']))
                 if type(e) == KeyError:
                     print("Missing attribute {}".format(e))
                     sys.exit()
@@ -89,117 +97,66 @@ def runMod(t,var,page):
                 else:
                     print(e)
 
-        elif mdata['mod'] == "page":
+        elif meta['mod'] == "page":
             #Built-in module page, takes configuration settings and builds a page at a location
-            if 'settings' in mdata:
+            if 'settings' in meta:
                 try:
-                    if 'template' in mdata['settings']:
-                        template = file(mdata['settings']['template']).read()
+                    if 'template' in meta['settings']: template = file(meta['settings']['template']).read()
 
                 except:
                     print("Error occured at {} using module page".format(page))
-                    print("Cannot open file {}".format(mdata['settings']['template']))
+                    print("Cannot open file {}".format(meta['settings']['template']))
                     sys.exit()
             else:
                 template = t
 
             if 'pagevar' in var:
-                pv = var['pagevar']
-                if 'settings' in mdata:
-                    if 'pagevar' in mdata['settings']:
-                        pv.update(mdata['settings']['pagevar'])
+                if 'settings' in meta:
+                    if 'pagevar' in meta['settings']:
+                        var['pagevar'].update(meta['settings']['pagevar'])
 
-                template = generateTemplate(template,pv,name)
+                template = generateTemplate(template,var['pagevar'],name)
 
             else:
                 template = runInlineScript(template,name)
             
-            if not 'settings' == mdata:
+            if not 'settings' == meta:
                 t = {'default':template}
 
             else:
-                if 'location' in mdata:
-                    t = {mdata['settings']['location']:{'default':template}}
+                if 'location' in meta: t = {meta['settings']['location']:{'default':template}}
 
             subpage.update(t)
 
     return subpage
 
 def build(bd):
+    global pages, pagedata
+
+    #Try to get the config
+    try: pages = file("pages.yml")
+    except:
+        print("Can't open file 'pages.yml'")
+        sys.exit()
+
+    pagedata = yaml.load(pages)
+
     site = {}
-    
     #Loops through defined "sites"
     for name,v in pagedata.items():
-        try:
-            template = file(v['template']).read()
-
+        #Read the template
+        try: template = file(v['template']).read()
         except:
             print("{}: Can't open file '{}'".format(name,v['template']))
             sys.exit()
-
+        
+        #Check if pagevar is defined, skip the variable replacement step
         if 'pagevar' in v:
             template = generateTemplate(template,v['pagevar'],name)
+
         else:
             template = runInlineScript(template,name)
 
         site[name] = runMod(template,v,name)
 
     buildSite(site,bd)
-
-if __name__ == "__main__":
-    buildDir = "site/"
-    init = False
-
-    if len(sys.argv) > 1:
-        for i in sys.argv:
-            if i[0] != "-" and i != sys.argv[0]:
-                buildDir = i
-
-            elif i == "--init" or i == "-i":
-                init = True
-
-            elif i == "-d":
-                os.chdir(sys.argv.pop(sys.argv.index(i)+1))
-
-            elif i == "--help":
-                print("Usage: build [OPTION(s)]... [DIR]...\n"
-                      "Build site in DIR using configuration in pwd\n"
-                      "\n"
-                      "  -d DIR      Use configuration in DIR, when not specified DIR is 'site/'\n"
-                      "  -i, --init  Make a new site using the bare minimium config and build it in DIR\n"
-                      "      --help  Display this help and exit\n"
-                      "\n")
-
-                sys.exit()
-
-            elif i != sys.argv[0]:
-                print("Unknown option: {}".format(i))
-
-    if init:
-        init()
-
-    print("Going through pages...")
-    start = time.time()
-    try:
-        pages = open("pages.yml")
-
-    except:
-        print("Can't open file 'pages.yml'")
-        sys.exit()
-
-    pagedata = yaml.load(pages)
-    pages.close()
-
-    try: build(buildDir)
-    except Exception,e:
-        if type(e) == KeyError:
-            print("Missing or mistyped value: {}".format(e))
-
-        else:
-            print("Something went wrong...")
-            print(e)
-        
-        traceback.print_exc(file=sys.stdout)
-        sys.exit()
-
-    print("Finished in {} ms.".format((time.time()-start)*1000))
