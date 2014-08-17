@@ -1,16 +1,19 @@
 #!/usr/bin/python
 '''
 '  pnbp - pnbp is not a blogging platform
-'  
+'  build.py
 '  Paul Longtine - paullongtine@gmail.com
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 #Core imports
-import os, sys, shutil,json, yaml, time, traceback
+import os, sys, shutil, json, yaml, time, traceback
+
 #Helper imports
-import module, initbasic
+import module
+from buildsite import *
 from functions import *
+from initbasic import *
 
 # Adds in variables defined in pages.json
 #
@@ -41,6 +44,30 @@ def generateTemplate(t,var,page):
             t = t.replace("%"+search+"%",replace)
 
     return t
+
+#Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
+def runInlineScript(template,page):
+    exists = True
+    while exists:
+        try:
+            index = template.index("{:")+2
+            findex = index
+            exists = True
+            
+        except:
+            exists = False
+
+        if exists:
+            script = ""
+            while template[index:index+2] != ":}":
+                script = script + template[index]
+                index += 1
+
+            returns = ""
+            exec(script)
+            template = template.replace(template[findex-2:index+2],returns)
+    
+    return template
 
 # Runs modules defined in pages.json
 #
@@ -98,105 +125,7 @@ def runMod(t,var,page):
 
     return subpage
 
-#Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
-def runInlineScript(template,page):
-    exists = True
-    while exists:
-        try:
-            index = template.index("{:")+2
-            findex = index
-            exists = True
-            
-        except:
-            exists = False
-
-        if exists:
-            script = ""
-            while template[index:index+2] != ":}":
-                script = script + template[index]
-                index += 1
-
-            returns = ""
-            exec(script)
-            template = template.replace(template[findex-2:index+2],returns)
-    
-    return template
-
-# Builds the site off of a filestructure dictionary.
-def buildSite(site,loc):
-    try:
-        shutil.rmtree(loc)
-
-    except:
-        print("No directory {}, ignoring".format(loc))
-
-    os.mkdir(loc)
-    for page, subpages in site.items():
-        if page == "index":
-            if loc[-1] == "/":
-                currentDir = loc[0:-1]
-
-            else:
-                currentDir = loc
-
-        else:
-            if loc[-1] == "/":
-                currentDir = loc+page
-
-            else:
-                currentDir = loc+"/"+page
-
-            try:
-                os.mkdir(currentDir)
-
-            except:
-                pass
-        
-        subpageLoop(subpages,currentDir)
-
-    if loc[-1] != "/":
-        loc = loc + "/"
-    try:
-        for i in os.listdir("data/static/"):
-            try:
-                shutil.copytree("data/static/"+i,loc+i)
-                
-            except:
-                shutil.copy2("data/static/"+i,loc+i)
-    except:
-        print("No directory data/static, ignoring")
-
-#Recursive loop through all subpages
-#d = dict of all subpages, cd = Current directory
-def subpageLoop(d,currentDir):
-    for k, v in d.iteritems():
-        if isinstance(v, dict):
-            subpageLoop(v,currentDir + "/" + k)
-        else:
-            if k == "default":
-                k = ""
-
-            else:
-                k = k + "/"
-
-            try:
-                file("{}/{}index.html".format(currentDir,k), "w").write(v)
-
-            except:
-                try:
-                    os.mkdir("{}".format(currentDir))
-
-                except:
-                    pass
-
-                try:
-                    os.mkdir("{}/{}".format(currentDir,k))
-                except:
-                    pass
-
-                file("{}/{}index.html".format(currentDir,k), "w").write(v)
-
-def main():
+def build(bd):
     site = {}
     
     #Loops through defined "sites"
@@ -215,7 +144,7 @@ def main():
 
         site[name] = runMod(template,v,name)
 
-    buildSite(site,buildDir)
+    buildSite(site,bd)
 
 if __name__ == "__main__":
     buildDir = "site/"
@@ -226,13 +155,28 @@ if __name__ == "__main__":
             if i[0] != "-" and i != sys.argv[0]:
                 buildDir = i
 
-            elif i == "--init":
+            elif i == "--init" or i == "-i":
                 init = True
-            else:
+
+            elif i == "-d":
+                os.chdir(sys.argv.pop(sys.argv.index(i)+1))
+
+            elif i == "--help":
+                print("Usage: build [OPTION(s)]... [DIR]...\n"
+                      "Build site in DIR using configuration in pwd\n"
+                      "\n"
+                      "  -d DIR      Use configuration in DIR, when not specified DIR is 'site/'\n"
+                      "  -i, --init  Make a new site using the bare minimium config and build it in DIR\n"
+                      "      --help  Display this help and exit\n"
+                      "\n")
+
+                sys.exit()
+
+            elif i != sys.argv[0]:
                 print("Unknown option: {}".format(i))
 
     if init:
-        initbasic.init()
+        init()
 
     print("Going through pages...")
     start = time.time()
@@ -245,8 +189,8 @@ if __name__ == "__main__":
 
     pagedata = yaml.load(pages)
     pages.close()
-    try:
-        main()
+
+    try: build(buildDir)
     except Exception,e:
         if type(e) == KeyError:
             print("Missing or mistyped value: {}".format(e))

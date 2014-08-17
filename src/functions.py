@@ -1,3 +1,10 @@
+'''
+'  pnbp - pnbp is not a blogging platform
+'  functions.py
+'  Paul Longtine - paullongtine@gmail.com
+'
+'  For documentation, please visit http://static.nanner.co/pnbp
+'''
 # Functions file, used for inline scripts
 import time
 
@@ -15,5 +22,3 @@ def list(things,formats={}):
         li = li + formats['li'].replace("%content%",thing)
 
     return formats['root'].replace("%li%",li)
-
-
