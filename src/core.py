@@ -68,7 +68,7 @@ def runInlineScript(template,page):
 
             returns = ""
             exec(script)
-            template = template.replace(template[findex-2:index+2],returns)
+            template = template.replace(template[index-2:index+2],returns)
     
     return template
 
