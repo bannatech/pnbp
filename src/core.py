@@ -6,7 +6,7 @@
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 #Core imports
-import os, sys, json, yaml
+import os, sys, json, yaml, re
 
 #Helper imports
 import module
@@ -50,27 +50,66 @@ def generateTemplate(t,var,page):
 
 #Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
 def runInlineScript(template,page):
-    exists = True
-    while exists:
-        try:
-            index = template.index("{:")+2
-            findex = index
-            exists = True
-            
-        except:
-            exists = False
-
-        if exists:
-            script = ""
-            while template[index:index+2] != ":}":
-                script = script + template[index]
-                index += 1
-
-            returns = ""
-            exec(script)
-            template = template.replace(template[findex-2:index+2],returns)
+    for script in re.findall("{:(.*?):}",template, re.DOTALL):
+        returns = ""
+        exec(script)
+        template = template.replace("{:"+script+":}",returns)
     
     return template
+
+# Built-in module, generates page as subpage
+def genPage(t,data,name,page):
+    if 'settings' in data:
+        try:
+            if 'template' in data['settings']:
+                template = file(data['settings']['template']).read()
+
+        except:
+            print("Error occured at {} using module page".format(page))
+            print("Cannot open file {}".format(data['settings']['template']))
+            sys.exit()
+
+    else:
+        template = t
+
+    if 'pagevar' in var:
+        if 'settings' in data:
+            if 'pagevar' in data['settings']:
+                var['pagevar'].update(data['settings']['pagevar'])
+
+        template = generateTemplate(template,var['pagevar'],name)
+
+    else:
+        template = runInlineScript(template,name)
+    
+    if not 'settings' == data:
+        t = {'default':template}
+
+    else:
+        if 'location' in meta:
+            t = {data['settings']['location']:{'default':template}}
+
+    return t
+
+# Gets subpages from module specified in data
+def getSubpages(t,data,name,page):
+    returns = {}
+    if not "settings" in data:
+        data['settings'] = {}
+
+    try:
+        returns = getattr(module, data['mod']).getPages(t, data['settings'], name, page)
+
+    except Exception,e:
+        print("Error occured at {} using module {}:".format(page,data['mod']))
+        if type(e) == KeyError:
+            print("Missing attribute {}".format(e))
+            sys.exit()
+
+        else:
+            print(e)
+    
+    return returns
 
 # Runs modules defined in pages.json
 #
@@ -79,54 +118,14 @@ def runMod(t,var,page):
     subpage = {}
     for name, meta in var['pagemod'].items():
         if meta['mod'] != "page":
-            if not "settings" in meta: meta['settings'] = {}
-            try:
-                #Runs module specified in settings
-                subpage.update(
-                    getattr(module, meta['mod']).getPages(
-                        t, meta['settings'], name, page
-                    )
-                )
-
-            except Exception,e:
-                print("Error occured at {} using module {}:".format(page,meta['mod']))
-                if type(e) == KeyError:
-                    print("Missing attribute {}".format(e))
-                    sys.exit()
-
-                else:
-                    print(e)
+            subpage.update(
+                getSubpages(t,meta,name,page)
+            )
 
         elif meta['mod'] == "page":
-            #Built-in module page, takes configuration settings and builds a page at a location
-            if 'settings' in meta:
-                try:
-                    if 'template' in meta['settings']: template = file(meta['settings']['template']).read()
-
-                except:
-                    print("Error occured at {} using module page".format(page))
-                    print("Cannot open file {}".format(meta['settings']['template']))
-                    sys.exit()
-            else:
-                template = t
-
-            if 'pagevar' in var:
-                if 'settings' in meta:
-                    if 'pagevar' in meta['settings']:
-                        var['pagevar'].update(meta['settings']['pagevar'])
-
-                template = generateTemplate(template,var['pagevar'],name)
-
-            else:
-                template = runInlineScript(template,name)
-            
-            if not 'settings' == meta:
-                t = {'default':template}
-
-            else:
-                if 'location' in meta: t = {meta['settings']['location']:{'default':template}}
-
-            subpage.update(t)
+            subpage.update(
+                genPage(t,meta,name,page)
+            )
 
     return subpage
 
