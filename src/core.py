@@ -26,7 +26,6 @@ def generateTemplate(t,var,page):
         page = ""
 
     t = t.replace("%page%",page)
-
     t = runInlineScript(t,page)
     
     for search,replace in var.items():
@@ -41,6 +40,7 @@ def generateTemplate(t,var,page):
             if exists:
                 inc = file(replace).read()
                 inc = generateTemplate(inc,var,page)
+                print("Building include: '"+search+"'")
                 t = t.replace("%"+search+"%",inc)
 
         else:
@@ -155,7 +155,9 @@ def build(bd):
 
         else:
             template = runInlineScript(template,name)
-
+        
+        print("Running modules for page: '"+name+"'")
         site[name] = runMod(template,v,name)
+        print("Built page: '"+ name +"'\n")
 
     buildSite(site,bd)
