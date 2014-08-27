@@ -58,7 +58,7 @@ def runInlineScript(template,page):
     return template
 
 # Built-in module, generates page as subpage
-def genPage(t,data,name,page):
+def genPage(t,var,data,name,page):
     if 'settings' in data:
         try:
             if 'template' in data['settings']:
@@ -92,7 +92,7 @@ def genPage(t,data,name,page):
     return t
 
 # Gets subpages from module specified in data
-def getSubpages(t,data,name,page):
+def getSubpages(t,var,data,name,page):
     returns = {}
     if not "settings" in data:
         data['settings'] = {}
@@ -119,12 +119,12 @@ def runMod(t,var,page):
     for name, meta in var['pagemod'].items():
         if meta['mod'] != "page":
             subpage.update(
-                getSubpages(t,meta,name,page)
+                getSubpages(t,var,meta,name,page)
             )
 
         elif meta['mod'] == "page":
             subpage.update(
-                genPage(t,meta,name,page)
+                genPage(t,var,meta,name,page)
             )
 
     return subpage
