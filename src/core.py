@@ -18,6 +18,36 @@ from functions import *
 pages = ""
 pagedata = {}
 
+#CLI Interface function
+#args = list of command line arguementsn
+def cli(args):
+    bd = "site/"
+    if len(args) > 1:
+        for i in args:
+            if i[0] != "-" and args.index(i) != 0:
+                bd = i
+            
+            elif i == "-d":
+                os.chdir(args.pop(args.index(i)+1))
+            
+            elif i == "--help":
+                print("Usage: build [OPTION(s)]... [DIR]...\n"
+                      "Build site in DIR using configuration in pwd\n"
+                      "\n"
+                      "  -d DIR      Use configuration in DIR, when not specified DIR is 'site/'\n"
+                      "  -i, --init  Make a new site using the bare minimium config and build it in DIR\n"
+                      "      --help  Display this help and exit\n")
+                
+                sys.exit()
+            
+            elif 0 != args.index(i):
+                print("Unknown option: {}".format(i))
+            
+    if "--init" in args or "-i" in args:
+        init()
+
+    return bd
+
 # Adds in variables defined in pages.json
 #
 # t = raw template, var = "pagevar" variables in pages.json (<pagename> -> "pagevar")
@@ -129,8 +159,10 @@ def runMod(t,var,page):
 
     return subpage
 
-def build(bd):
+def build(arg):
     global pages, pagedata
+
+    bd = cli(arg)
 
     #Try to get the config
     try: pages = file("pages.yml")
