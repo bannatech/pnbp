@@ -12,6 +12,7 @@ import os, sys, json, yaml, re
 import module
 from buildsite import *
 from functions import *
+from initbasic import *
 
 #Global variables
 
@@ -28,7 +29,10 @@ def cli(args):
                 bd = i
             
             elif i == "-d":
-                os.chdir(args.pop(args.index(i)+1))
+                try:
+                    os.chdir(args.pop(args.index(i)+1))
+                except:
+                    pass
             
             elif i == "--help":
                 print("Usage: build [OPTION(s)]... [DIR]...\n"
