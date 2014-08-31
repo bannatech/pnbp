@@ -59,14 +59,20 @@ def subpageLoop(d,currentDir):
 		if isinstance(v, dict):
 			subpageLoop(v,currentDir + "/" + k)
 		else:
+			f = "index.html"
+
 			if k == "default":
+				k = ""
+
+			elif k[0:4] == "php:":
+				f = "{}.php".format(k[4:])
 				k = ""
 
 			else:
 				k = k + "/"
 
 			try:
-				file("{}/{}index.html".format(currentDir,k), "w").write(v)
+				file("{}/{}{}".format(currentDir,k,f), "w").write(v)
 
 			except:
 				try:
@@ -80,4 +86,4 @@ def subpageLoop(d,currentDir):
 				except:
 					pass
 
-				file("{}/{}index.html".format(currentDir,k), "w").write(v)
+				file("{}/{}{}".format(currentDir,k,f), "w").write(v)
