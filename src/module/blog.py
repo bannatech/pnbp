@@ -1,11 +1,15 @@
-import json,time
+import markdown,json,time
 
 def getPages(template,settings,name,page):
 	pages = {}
 	settings['postTemplate'] = settings.get("postTemplate","./templates/post.html")
 	settings['defaultPostCount'] = settings.get("defaultPostCount","0")
 	settings['description'] = settings.get("description","0")
-	data = json.load(file(settings['data']))
+	settings['database'] = settings.get("database","markdown")
+	settings['backend'] = settings.get("backend","json")
+
+	data = getDB(settings['data'],settings['backend'],settings['database'])
+
 	temp = file(settings['postTemplate']).read()
 
 	# Generates all posts on page (/all)
@@ -99,3 +103,13 @@ def getConfig(index,data):
 			retVal = retVal + data[pointer]
 			pointer += 1
 	return retVal
+
+def getDB(db, backend, content):
+	dbdata = {}
+	if backend == "json":
+		dbdata = json.load(file(db))
+		if content == "markdown":
+			for post in dbdata:
+				post['content'] = markdown.markdown(post['content'])
+
+	return dbdata
