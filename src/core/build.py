@@ -1,15 +1,15 @@
 '''
 '  pnbp - pnbp is not a blogging platform
-'  buildsite.py
+'  build.py
 '  Paul Longtine - paullongtine@gmail.com
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
-import os, shutil
+import os, shutil, module
 
 # Builds the site off of a filestructure dictionary.
 #site = dict of site directory tree/pages, loc = root of site
-def buildSite(site,loc):
+def write(site,loc):
 	try:
 		shutil.rmtree(loc)
 
@@ -18,26 +18,8 @@ def buildSite(site,loc):
 
 	os.mkdir(loc)
 	for page, subpages in site.items():
-		if page == "index":
-			if loc[-1] == "/":
-				currentDir = loc[0:-1]
+		currentDir = handleDirectory(page,loc)
 
-			else:
-				currentDir = loc
-
-		else:
-			if loc[-1] == "/":
-				currentDir = loc+page
-
-			else:
-				currentDir = loc+"/"+page
-
-			try:
-				os.mkdir(currentDir)
-
-			except:
-				pass
-		
 		subpageLoop(subpages,currentDir)
 
 	if loc[-1] != "/":
@@ -52,12 +34,37 @@ def buildSite(site,loc):
 	except:
 		print("No directory data/static, ignoring")
 
+# Handles directories
+#p = name of page, l = location
+def handleDirectory(p,l):
+	if p == "index":
+		if l[-1] == "/":
+			r = l[0:-1]
+
+		else:
+			r = l
+
+	else:
+		if l[-1] == "/":
+			r = l+p
+
+		else:
+			r = l+"/"+p
+
+		try:
+			os.mkdir(r)
+
+		except:
+			pass
+
+	return r
+	
 #Recursive loop through all subpages
 #d = dict of all subpages, cd = Current directory
-def subpageLoop(d,currentDir):
+def subpageLoop(d,cur):
 	for k, v in d.iteritems():
 		if isinstance(v, dict):
-			subpageLoop(v,currentDir + "/" + k)
+			subpageLoop(v,cur + "/" + k)
 		else:
 			f = "index.html"
 
@@ -72,18 +79,18 @@ def subpageLoop(d,currentDir):
 				k = k + "/"
 
 			try:
-				file("{}/{}{}".format(currentDir,k,f), "w").write(v)
+				file("{}/{}{}".format(cur,k,f), "w").write(v)
 
 			except:
 				try:
-					os.mkdir("{}".format(currentDir))
+					os.mkdir("{}".format(cur))
 
 				except:
 					pass
 
 				try:
-					os.mkdir("{}/{}".format(currentDir,k))
+					os.mkdir("{}/{}".format(cur,k))
 				except:
 					pass
 
-				file("{}/{}{}".format(currentDir,k,f), "w").write(v)
+				file("{}/{}{}".format(cur,k,f), "w").write(v)

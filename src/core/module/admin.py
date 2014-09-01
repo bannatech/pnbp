@@ -2,7 +2,7 @@ import yaml
 
 def getPages(template,settings,name,page):
 	blogdb = getBlogDB(settings)
-	print blogdb[0]
+
 	index = """
 <!DOCTYPE html>
 <html>

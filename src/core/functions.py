@@ -22,3 +22,19 @@ def list(things,formats={}):
 		li = li + formats['li'].replace("%content%",thing)
 
 	return formats['root'].replace("%li%",li)
+
+# slug(string -> "hi's") -> his- removes all "unwanted" characters and creates a URL-friendly slug
+def slug(string):
+	invalidChars = [
+		"<",">","#","%","{","}",
+		"|","\\","^","[","]","`",
+		"'",";","/","?",":","@",
+		"&","+",",","."
+		]
+	for x in invalidChars:
+		string = string.replace(x, "")
+
+	string = string.replace(" ","_")
+	return string.lower()
+
+#
