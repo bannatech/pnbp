@@ -2,7 +2,6 @@ import yaml
 
 def getPages(template,settings,name,page):
 	blogdb = getBlogDB(settings)
-	print blogdb[0]
 	index = """
 <!DOCTYPE html>
 <html>
@@ -10,8 +9,9 @@ def getPages(template,settings,name,page):
 		<title>Admin Page</title>
 		<style>
 html {
-    background-color:#EFEFEF;
-    border-top:5px solid #FF9311;
+	font-family:sans-serif;
+	background-color:#EFEFEF;
+	border-top:5px solid #FF9311;
 }
 a {
 	text-decoration:none;
@@ -66,6 +66,7 @@ foreach ($databases as $db) {
 	<title>Admin</title>
 	<style>
 html {
+	font-family:sans-serif;
 	background-color:#EFEFEF;
 	border-top:5px solid #FF9311;
 }
@@ -147,6 +148,7 @@ if (isset($_GET['location']) && isset($_GET['post'])) {
 		<title>Admin</title>
 		<style>
 html {
+	font-family:sans-serif;
 	background-color:#EFEFEF;
 	border-top:5px solid #FF9311;
 }
@@ -182,7 +184,6 @@ if (isset($_POST['loc'])) {
 	fclose($fp);
 	$output = json_decode(file_get_contents($_POST['loc']),TRUE);
 	echo $output[$data["post"]]["content"];
-	echo "</div>";
 }
 echo shell_exec("build %destination% -d %root%");
 ?>
