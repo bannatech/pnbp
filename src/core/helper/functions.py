@@ -6,7 +6,7 @@
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 # Functions file, used for inline scripts
-import time
+import time, yaml
 
 
 #Return the current date in the format sepecified in config
@@ -37,4 +37,6 @@ def slug(string):
 	string = string.replace(" ","_")
 	return string.lower()
 
-#
+#Returns config
+def getConf():
+	return yaml.load(file("pages.yml"))

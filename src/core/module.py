@@ -1,12 +1,12 @@
 '''
 '  pnbp - pnbp is not a blogging platform
-'  modtool.py
+'  module.py
 '  Paul Longtine - paullongtine@gmail.com
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 
-import sys, module, template
+import sys, modules, template
 
 # Built-in module, generates page as subpage
 def modPage(t,var,data,name,page):
@@ -32,7 +32,7 @@ def modPage(t,var,data,name,page):
 
 	else:
 		temp = template.run(template,name)
-	
+
 	if not 'settings' == data:
 		t = {'default':temp}
 
@@ -49,7 +49,7 @@ def getSubpages(t,var,data,name,page):
 		data['settings'] = {}
 
 	try:
-		returns = getattr(module, data['mod']).getPages(t, data['settings'], name, page)
+		returns = getattr(modules, data['mod']).getPages(t, data['settings'], name, page)
 
 	except Exception,e:
 		print("Error occured at {} using module {}:".format(page,data['mod']))
@@ -65,19 +65,17 @@ def getSubpages(t,var,data,name,page):
 # Runs modules defined in pages.json
 #
 # t = raw template, var = "pagemod" variables in pages.json (<pagename> -> "pagemod")
-def runMod(t,var,page):
+def run(t,var,page):
 	subpage = {}
 	for name, meta in var['pagemod'].items():
 		if meta['mod'] == "page":
 			subpage.update(
 				modPage(t,var,meta,name,page)
 			)
-		
+
 		else:
 			subpage.update(
 				getSubpages(t,var,meta,name,page)
 			)
 
 	return subpage
-
-

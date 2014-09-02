@@ -7,10 +7,7 @@
 '''
 
 import re, json, yaml
-from functions import *
-
-try: pagedata = yaml.load(file("pages.yml"))
-except: pass
+from helper.functions import *
 
 # Adds in variables defined in pages.json
 #

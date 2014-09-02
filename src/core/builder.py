@@ -1,15 +1,18 @@
 '''
 '  pnbp - pnbp is not a blogging platform
-'  build.py
+'  builder.py
 '  Paul Longtine - paullongtine@gmail.com
 '
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
-import os, shutil, module
+import os, shutil
 
-# Builds the site off of a filestructure dictionary.
+import core.template
+import core.module
+
+#Builds the site off of a filestructure dictionary.
 #site = dict of site directory tree/pages, loc = root of site
-def write(site,loc):
+def makeSite(site,loc):
 	try:
 		shutil.rmtree(loc)
 
@@ -94,3 +97,33 @@ def subpageLoop(d,cur):
 					pass
 
 				file("{}/{}{}".format(cur,k,f), "w").write(v)
+
+def build(pd,directory):
+	site = {}
+	for name,v in pd.items():
+		#Read the template
+		if 'template' in v:
+			try:
+				temp = file(v['template']).read()
+
+			except:
+				print("{}: Can't open file '{}'".format(name,v['template']))
+				sys.exit()
+
+		else:
+			temp = ""
+
+		#Check if pagevar is defined, skip the variable replacement step
+		if 'pagevar' in v:
+			temp = core.template.generate(temp,v['pagevar'],name)
+
+		else:
+			temp = core.template.run(temp,name)
+		
+		print("Running modules for page: '"+name+"'")
+
+		site[name] = core.module.run(temp,v,name)
+
+		print("Built page: '"+ name +"'\n")
+
+	makeSite(site,directory)

@@ -1,7 +1,7 @@
 <div>
   <h1>This is in fact not a blog. %page%</h1>
   {:
-for i,x in sorted(pagedata.items(),reverse=True):
+for i,x in sorted(getConf().items(),reverse=True):
     l = i
     if page == "":page = "index"
     if str(i) == page: c = "current"
