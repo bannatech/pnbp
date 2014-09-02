@@ -6,7 +6,7 @@
 '  For documentation, please visit http://static.nanner.co/pnbp
 '''
 # Functions file, used for inline scripts
-import time
+import time, yaml
 
 
 #Return the current date in the format sepecified in config
@@ -22,3 +22,21 @@ def list(things,formats={}):
 		li = li + formats['li'].replace("%content%",thing)
 
 	return formats['root'].replace("%li%",li)
+
+# slug(string -> "hi's") -> his- removes all "unwanted" characters and creates a URL-friendly slug
+def slug(string):
+	invalidChars = [
+		"<",">","#","%","{","}",
+		"|","\\","^","[","]","`",
+		"'",";","/","?",":","@",
+		"&","+",",","."
+		]
+	for x in invalidChars:
+		string = string.replace(x, "")
+
+	string = string.replace(" ","_")
+	return string.lower()
+
+#Returns config
+def getConf():
+	return yaml.load(file("pages.yml"))
