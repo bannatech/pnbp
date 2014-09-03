@@ -34,6 +34,7 @@ def makeSite(site,loc):
 				
 			except:
 				shutil.copy2("data/static/"+i,loc+i)
+
 	except:
 		print("No directory data/static, ignoring")
 
@@ -69,34 +70,35 @@ def subpageLoop(d,cur):
 		if isinstance(v, dict):
 			subpageLoop(v,cur + "/" + k)
 		else:
-			f = "index.html"
+			f = k.split(".")
+			fl = ""
 
-			if k == "default":
-				k = ""
+			if len(f) < 2:
+				if f[0] != "default":
+					fl = f[0] + "/index.html"
 
-			elif k[0:4] == "php:":
-				f = "{}.php".format(k[4:])
-				k = ""
+				else:
+					fl = "index.html"
+					k = ""
 
 			else:
-				k = k + "/"
+				if f[0] != "raw":
+					fl = f[0] + "." + f[1]
+
+				else:
+					fl = f[0]
 
 			try:
-				file("{}/{}{}".format(cur,k,f), "w").write(v)
+				file("{}/{}".format(cur,fl), "w").write(v)
 
 			except:
-				try:
-					os.mkdir("{}".format(cur))
+				try: os.mkdir("{}".format(cur))
+				except: pass
 
-				except:
-					pass
+				try: os.mkdir("{}/{}".format(cur,k))
+				except: pass
 
-				try:
-					os.mkdir("{}/{}".format(cur,k))
-				except:
-					pass
-
-				file("{}/{}{}".format(cur,k,f), "w").write(v)
+				file("{}/{}".format(cur,fl), "w").write(v)
 
 def build(pd,directory):
 	site = {}
