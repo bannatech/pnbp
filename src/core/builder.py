@@ -1,9 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  builder.py
-'  Paul Longtine - paullongtine@gmail.com
-'
-'  For documentation, please visit http://static.nanner.co/pnbp
+'  Paul Longtine <paul@nanner.co>
 '''
 import os, shutil
 
@@ -14,10 +12,10 @@ import core.module
 #site = dict of site directory tree/pages, loc = root of site
 def makeSite(site,loc):
 	try:
-		shutil.rmtree(loc)
+		shutil.move(loc, loc+".bak")
 
 	except:
-		print("No directory {}, ignoring".format(loc))
+		print("No directory '{}', ignoring".format(loc))
 
 	os.mkdir(loc)
 	for page, subpages in site.items():
@@ -42,18 +40,10 @@ def makeSite(site,loc):
 #p = name of page, l = location
 def handleDirectory(p,l):
 	if p == "index":
-		if l[-1] == "/":
-			r = l[0:-1]
-
-		else:
-			r = l
+		r = l[0:-1] if l[-1] == "/" else l
 
 	else:
-		if l[-1] == "/":
-			r = l+p
-
-		else:
-			r = l+"/"+p
+		r = l+p if l[-1] == "/" else l+"/"+p
 
 		try:
 			os.mkdir(r)

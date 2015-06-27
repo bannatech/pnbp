@@ -1,9 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  template.py
-'  Paul Longtine - paullongtine@gmail.com
-'
-'  For documentation, please visit http://static.nanner.co/pnbp
+'  Paul Longtine <paul@nanner.co>
 '''
 
 import re, json, yaml

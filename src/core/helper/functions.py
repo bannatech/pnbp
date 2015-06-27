@@ -13,7 +13,8 @@ import time, yaml
 def now(config):
 	return time.strftime(config)
 
-#Return an HTML list. example format: {'root':"<ul class=\"special\">%li%</ul>",'li':"<li class=\"list\">%content%</li>"}
+#Return an HTML list. example format: 
+# {'root':"<ul class=\"special\">%li%</ul>",'li':"<li class=\"list\">%content%</li>"}
 def list(things,formats={}):
 	formats['root'] = formats.get("root","<ul>%li%</ul>")
 	formats['li'] = formats.get("li","<li>%content%</li>")
