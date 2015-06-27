@@ -12,14 +12,12 @@ import core.builder
 def init(arg):
 	if arg.init:
 		core.helper.cmd.init()
-	if arg.dir != "":
-		i = os.getcwd()
+		
+	if os.path.exists(arg.dir):
+		os.chdir(arg.dir)
 	else:
-		if os.path.exists(arg.dir):
-			i = arg.dir
-		else:
-			print("'{}' does not exist".format(arg.dir))
-			sys.exit(1)
+		print("'{}' does not exist".format(arg.dir))
+		sys.exit(1)
 
 	#Try to get the config
 	try:
@@ -31,5 +29,5 @@ def init(arg):
 
 	pagedata = yaml.load(pages)
 
-	core.builder.build(pagedata,arg.dir)
+	core.builder.build(pagedata,arg.out)
 

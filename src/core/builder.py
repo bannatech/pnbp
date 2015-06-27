@@ -15,7 +15,7 @@ def makeSite(site,loc):
 		shutil.move(loc, loc+".bak")
 
 	except:
-		print("No directory '{}', ignoring".format(loc))
+		print("Creating directory '{}'".format(loc))
 
 	os.mkdir(loc)
 	for page, subpages in site.items():

@@ -15,10 +15,12 @@ from optparse import OptionParser
 def parsearg():
 	parser = OptionParser()
 
-	parser.add_option("-d", "--directory", dest="dir", default="site",
-	                  help="Set site project root directory", metavar="<dir>")
+	parser.add_option("-d", dest="dir", default=".",
+	                  help="set site project root directory", metavar="<dir>")
+	parser.add_option("-o", dest="out", default="site",
+	                  help="where to output", metavar="<out>")
 	parser.add_option("-i", "--init", dest="init", action="store_true", default=False,
-	                  help="Initalize basic project directory")
+	                  help="initalize basic project directory")
 	return parser.parse_args()
 
 if __name__ == "__main__":

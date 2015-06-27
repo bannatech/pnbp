@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Admin Page</title>
+		<style>
+html {
+	font-family:sans-serif;
+	background-color:#EFEFEF;
+	border-top:5px solid #FF9311;
+}
+a {
+	text-decoration:none;
+	color:#4183c4;
+}
+a:hover {
+	text-decoration:underline;
+}
+a:visited {
+	color:#4183c4;
+}
+#container {
+	width:700px;
+	margin:0 auto;
+}
+.container {
+	margin-left:50px;
+}
+		</style>
+	</head>
+	<body>
+	<div id="container">
+	<a href="/admin" class="nav">Home</a>
+	<a href="/admin/post.php">Update</a>
+<?php
+$databases = [%db%];
+$name = [%dbn%];
+$index = 0;
+foreach ($databases as $db) {
+	$data = json_decode(file_get_contents($db),TRUE);
+	echo "<h1>".$name[$index]."</h1>";
+	echo "<div class='container'>";
+	$new = 0;
+	foreach ($data as $val) {
+		echo "<a href=\\"edit.php?location=".$db."&post=".$val["post"]."\\">".$val["title"]."</a><br/>";
+		$new = $new + 1;
+	}
+	echo "<br /><a href=\\"edit.php?location=".$db."&newpost=".$new."\\">New Post</a><br/>";
+	echo "</div>";
+	$index = $index + 1;
+}
+?>
+	</div>
+	</body>
+</html>
+
