@@ -21,7 +21,7 @@ $ git clone https://github.com/bannana/pnbp.git
   
 $ cd pnbp
 # Install pnbp
-$ sudo sh install.sh
+$ sudo make install
 ```
 
 #Basic usage
