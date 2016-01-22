@@ -1,6 +1,6 @@
 import os, sys, yaml
 
-import core.ambassador
+import stagit.ambassador
 
 def init(arg):
 	if os.path.exists(arg.dir):
@@ -12,14 +12,14 @@ def init(arg):
 	#Try to get the config
 	try:
 		raw_config = file("stagit_config.yml")
+		print("stagit enabled")
 
 	except:
-		print("Can't open file 'stagit_config.yml'")
-		sys.exit(0)
+		return
 
 	config = yaml.load(raw_config)
 
-	core.ambassador.stagit(config)
+	stagit.ambassador.stagit(config)
 
 
 

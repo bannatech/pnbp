@@ -38,7 +38,7 @@ def getPages(template,settings,name,page):
 	pages['post'] = {}
 	for i in data:
 		post = generatePost(i,temp,page)
-		pages['post'][slug(i['title'])] = template.replace("%"+name+"%",post)	
+		pages['post'][slug(i['title'])] = template.replace("%"+name+"%",post)
 
 	return pages
 

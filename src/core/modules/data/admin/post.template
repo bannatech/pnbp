@@ -34,6 +34,10 @@ if (isset($_POST['loc'])) {
 	$posts = json_decode(file_get_contents($_POST['loc']),TRUE);
 	parse_str(str_replace(",", "&", $_POST['vars']), $data);
 
+	if (!(isset($data["title"]))) {
+		$data["title"] = uniqid();
+	}
+
 	$posts[$data["post"]] = array_merge($data,array("content" => $_POST["post"]));
 	$fp = fopen($_POST['loc'], 'w');
 	fwrite($fp, json_encode($posts));

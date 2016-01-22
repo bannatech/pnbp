@@ -7,7 +7,7 @@
 '  For documentation, please visit http://pnbp.nanner.co
 '''
 
-import core, shtml, stagit
+import core, stagit
 
 from time import time
 from optparse import OptionParser
@@ -19,6 +19,8 @@ def parsearg():
 	                  help="set site project root directory", metavar="<dir>")
 	parser.add_option("-o", dest="out", default="site",
 	                  help="where to output", metavar="<out>")
+	parser.add_option("-i", "--init", dest="init", action="store_true",
+	                  default=False, help="initalize basic project directory")
 	return parser.parse_args()
 
 if __name__ == "__main__":

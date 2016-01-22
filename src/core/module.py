@@ -46,18 +46,18 @@ def getSubpages(t,var,data,name,page):
 	if not "settings" in data:
 		data['settings'] = {}
 
-	try:
-		returns = getattr(modules, data['mod']).getPages(t, data['settings'], name, page)
+#	try:
+	returns = getattr(modules, data['mod']).getPages(t, data['settings'], name, page)
 
-	except Exception,e:
-		print("Error occured at {} using module {}:".format(page,data['mod']))
-		if type(e) == KeyError:
-			print("Missing attribute {}".format(e))
-			sys.exit()
-
-		else:
-			print(e)
-
+#	except Exception,e:
+#		print("Error occured at {} using module {}:".format(page,data['mod']))
+#		if type(e) == KeyError:
+#			print("Missing attribute {}".format(e))
+#			sys.exit()
+#
+#		else:
+#			print(e)
+#
 	return returns
 
 # Runs modules defined in pages.json

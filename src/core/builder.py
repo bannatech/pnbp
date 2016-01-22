@@ -5,33 +5,47 @@
 '''
 import os, shutil
 
+from datetime import date, datetime
+
 import core.template
 import core.module
 
 #Builds the site off of a filestructure dictionary.
 #site = dict of site directory tree/pages, loc = root of site
 def makeSite(site,loc):
-	try:
-		shutil.move(loc, loc+".bak")
+	if not (os.path.isdir("history")):
+		os.mkdir("history")
 
-	except:
-		print("Creating directory '{}'".format(loc))
+	shutil.move(loc,
+		os.path.join("history",
+		              loc+date.strftime(datetime.now(), "%Y-%m-%d-%H-%M-%S")
+		)
+	)
+
+	if (os.path.isdir(loc)):
+		shutil.rmtree(loc)
 
 	os.mkdir(loc)
+
 	for page, subpages in site.items():
 		currentDir = handleDirectory(page,loc)
 
 		subpageLoop(subpages,currentDir)
-
-	if loc[-1] != "/":
-		loc = loc + "/"
+	
 	try:
+
 		for i in os.listdir("data/static/"):
 			try:
-				shutil.copytree("data/static/"+i,loc+i)
-				
+				shutil.copytree(
+					os.path.join("data/static/", i),
+					os.path.join(loc, i)
+				)
+			
 			except:
-				shutil.copy2("data/static/"+i,loc+i)
+				shutil.copy2(
+					os.path.join("data/static/", i),
+					os.path.join(loc, i)
+				)
 
 	except:
 		print("No directory data/static, ignoring")
@@ -58,7 +72,7 @@ def handleDirectory(p,l):
 def subpageLoop(d,cur):
 	for k, v in d.iteritems():
 		if isinstance(v, dict):
-			subpageLoop(v,cur + "/" + k)
+			subpageLoop(v, os.path.join(cur, k))
 		else:
 			f = k.split(".")
 			fl = ""

@@ -37,15 +37,15 @@ $name = [%dbn%];
 $index = 0;
 foreach ($databases as $db) {
 	$data = json_decode(file_get_contents($db),TRUE);
-	echo "<h1>".$name[$index]."</h1>";
-	echo "<div class='container'>";
+	echo '<h1>'.$name[$index].'</h1>';
+	echo '<div class="container">';
 	$new = 0;
 	foreach ($data as $val) {
-		echo "<a href=\\"edit.php?location=".$db."&post=".$val["post"]."\\">".$val["title"]."</a><br/>";
+		echo '<a href="edit.php?location='.$db.'&post='.$val["post"].'">'.$val["title"].'</a><br/>';
 		$new = $new + 1;
 	}
-	echo "<br /><a href=\\"edit.php?location=".$db."&newpost=".$new."\\">New Post</a><br/>";
-	echo "</div>";
+	echo '<br /><a href="edit.php?location='.$db.'&newpost='.$new.'">New Post</a><br/>';
+	echo '</div>';
 	$index = $index + 1;
 }
 ?>
