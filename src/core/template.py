@@ -4,44 +4,46 @@
 '  Paul Longtine <paul@nanner.co>
 '''
 
-import re, json, yaml
-from helper.functions import *
+import re
+import core.env
+
 
 # Adds in variables defined in pages.json
 #
-# t = raw template, var = "pagevar" variables in pages.json (<pagename> -> "pagevar")
-def generate(t,var,page):
-	if page == "index":
-		page = ""
+def generate(rawTemplate, pagevar, pageName):
+    if pageName == "index":
+        page = ""
 
-	t = t.replace("%page%",page)
-	t = run(t,page)
-	
-	for search,replace in var.items():
-		if search[0] == ":":
-			try:
-				t.index("%"+search+"%")
-				exists = True
+    t = rawTemplate.replace("%page%", pageName)
+    t = run(t, pageName)
 
-			except:
-				exists = False
+    for search, replace in pagevar.items():
+        key = f"%{search}%"
+        if search[0] == "$":
+            try:
+                t.index(key)
+                exists = True
 
-			if exists:
-				inc = file(replace).read()
-				inc = generate(inc,var,page)
-				print("Building include: '"+search+"'")
-				t = t.replace("%"+search+"%",inc)
+            except Exception:
+                exists = False
 
-		else:
-			t = t.replace("%"+search+"%",replace)
+            if exists:
+                inc = open(replace).read()
+                inc = generate(inc, pagevar, pageName)
+                print(f"Building include: '{search}'")
+                t = t.replace(key, inc)
 
-	return t
+        else:
+            t = t.replace(key, replace)
 
-#Takes all code blocks in templates ("{:print("Hi"):}") and executes it, and replaces the block with the "returns" variable
-def run(template,page):
-	for script in re.findall("{:(.*?):}",template, re.DOTALL):
-		returns = ""
-		exec(script)
-		template = template.replace("{:"+script+":}",returns)
-	
-	return template
+    return t
+
+
+# Finds all code blocks in templates (e.g. "{:print("Hi"):}") and executes it,
+# replaces the block with the "returns" variable
+def run(template, pageName):
+    for script in re.findall("{:(.*?):}", template, re.DOTALL):
+        returns = core.env.run(script, pageName)
+        template = template.replace(f"{{:{script}:}}", returns)
+
+    return template

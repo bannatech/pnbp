@@ -1,79 +1,132 @@
 '''
 '  pnbp - pnbp is not a blogging platform
-'  module.py
+'  module.py - implements the page module and the interface for loading modules
 '  Paul Longtine <paul@nanner.co>
 '''
 
-import sys, modules, template
+import os
+import sys
+import imp
+import core.template
+
+base_module_path = os.path.join(os.path.dirname(__file__), "../modules")
+module_path = ""
+loaded_modules = {}
+
 
 # Built-in module, generates page as subpage
-def modPage(t,var,data,name,page):
-	if 'settings' in data:
-		try:
-			if 'template' in data['settings']:
-				temp = file(data['settings']['template']).read()
+def modPage(pageTemplate, pageDefinition, modDefinition, modName, pageName):
+    if 'settings' in modDefinition and 'template' in modDefinition['settings']:
+        templateFile = modDefinition['settings']['template']
 
-		except:
-			print("Error occured at {} using module page".format(page))
-			print("Cannot open file {}".format(data['settings']['template']))
-			sys.exit()
+        try:
+            temp = open(templateFile).read()
+        except Exception as e:
+            ex = f"Error occured at {pageName} using module page: failed to open file {templateFile}: {e}"
+            raise Exception(ex)
 
-	else:
-		temp = t
+    else:
+        temp = pageTemplate
 
-	if 'pagevar' in var:
-		if 'settings' in data:
-			if 'pagevar' in data['settings']:
-				var['pagevar'].update(data['settings']['pagevar'])
+    pagevar = {}
+    if 'pagevar' in pageDefinition:
+        pagevar = pageDefinition['pagevar']
 
-		temp = template.generate(temp,var['pagevar'],name)
+        if 'settings' in modDefinition and 'pagevar' in modDefinition['settings']:
+            pageDefinition['pagevar'].update(modDefinition['settings']['pagevar'])
 
-	else:
-		temp = template.run(template,name)
+    temp = core.template.generate(temp, pagevar, pageName)
 
-	if not 'settings' == data:
-		t = {'default':temp}
+    if 'settings' in modDefinition and 'location' in modDefinition['settings']:
+        page = {
+            modDefinition['settings']['location']: {
+                'index': temp
+            }
+        }
+    else:
+        page = {
+            'index': temp
+        }
 
-	else:
-		if 'location' in meta:
-			t = {data['settings']['location']:{'default':temp}}
+    return page
 
-	return t
 
-# Gets subpages from module specified in data
-def getSubpages(t,var,data,name,page):
-	returns = {}
-	if not "settings" in data:
-		data['settings'] = {}
+def getModule(module_name):
+    if module_name not in loaded_modules:
+        module_py = f"{module_name}.py"
+        module_fname = os.path.join(base_module_path, module_py)
+        if os.path.exists(module_fname) is False and module_path != "":
+            module_fname = os.path.join(module_path, module_py)
 
-#	try:
-	returns = getattr(modules, data['mod']).getPages(t, data['settings'], name, page)
+        if os.path.exists(module_fname) is False:
+            raise Exception(f"Module not found: '{module_name}'")
 
-#	except Exception,e:
-#		print("Error occured at {} using module {}:".format(page,data['mod']))
-#		if type(e) == KeyError:
-#			print("Missing attribute {}".format(e))
-#			sys.exit()
-#
-#		else:
-#			print(e)
-#
-	return returns
+        loaded_modules[module_name] = imp.load_source(module_name, module_fname)
+
+    return loaded_modules[module_name]
+
 
 # Runs modules defined in pages.json
 #
-# t = raw template, var = "pagemod" variables in pages.json (<pagename> -> "pagemod")
-def run(t,var,page):
-	subpage = {}
-	for name, meta in var['pagemod'].items():
-		if meta['mod'] == "page":
-			subpage.update(
-				modPage(t,var,meta,name,page)
-			)
+def run(pageTemplate, pageDefinition, pageName):
+    subpage = {}
+    for modName, modDefinition in pageDefinition['pagemod'].items():
+        modType = modDefinition['mod']
+        if modType == "page":
+            mergeSubpages(
+                subpage,
+                modPage(
+                    pageTemplate,
+                    pageDefinition,
+                    modDefinition,
+                    modName,
+                    pageName
+                )
+            )
 
-		else:
-			subpage.update(
-				getSubpages(t,var,meta,name,page)
-			)
+        else:
+            mergeSubpages(
+                subpage,
+                getSubpages(
+                    pageTemplate,
+                    pageDefinition,
+                    modDefinition,
+                    modName,
+                    pageName
+                )
+            )
 
-	return subpage
+        if 'index' in subpage:
+            pageTemplate = subpage['index']
+
+    return subpage
+
+
+# Gets subpages from module specified in data
+def getSubpages(pageTemplate, pageDefinition, modDefinition, modName, pageName):
+    returns = {}
+    settings = {}
+    if "settings" in modDefinition:
+        settings = modDefinition['settings']
+
+    module_name = modDefinition['mod']
+
+    module = getModule(module_name)
+    if module is not None:
+        getPages = getattr(module, 'getPages')
+        try:
+            returns = getPages(pageTemplate, settings, modName, pageName)
+        except Exception as e:
+            raise Exception(f"Error occured at {pageName} using module {module_name}: {e}")
+    else:
+        raise Exception(f"No such module {module_name}")
+
+    return returns
+
+
+def mergeSubpages(subpages, newpages):
+    for page, content in newpages.items():
+        if page in subpages and isinstance(subpages[page], dict) and isinstance(newpages[page], dict):
+            mergeSubpages(subpages[page], newpages[page])
+        else:
+            subpages[page] = newpages[page]

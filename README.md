@@ -1,19 +1,20 @@
-pnbp
-====
+# pnbp
 
-pnbp is a simple, scriptable and extendable platform to generate static websites with simple configuration and dynamic content.
+pnbp is a simple, scriptable and extendable platform to generate static websites
+with simple configuration and dynamic content.
 
-I can't possibly use someone elses software for static website generation, so I made my own.
+I can't possibly use someone elses software for static website generation, so I
+made my own.
 
-#Installing
+# Installing
 
-##Dependencies:
+## Dependencies:
 
-* Python 2.x
+* Python 3.x
 
 * pyyaml (`pip install pyyaml`)
 
-##How to install
+## How to install
 
 ```bash
 # Clone the repository
@@ -24,8 +25,9 @@ $ cd pnbp
 $ sudo make install
 ```
 
-#Basic usage
+# Basic usage
 
-To set up a basic site, run `build -i`
+To set up a basic site, run `pbuild -i`
 
-For information regarding configration documentation, please refer to the [documentation](http://pnbp.nanner.co).
+For information regarding configration documentation, please refer to the
+[documentation](http://pnbp.nanner.co). (which is very sparse)

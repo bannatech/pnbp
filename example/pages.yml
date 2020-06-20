@@ -1,24 +1,24 @@
 index:
   template: "templates/std.html"
   pagevar:
-    :header: "./includes/header.html"
+    $header: "includes/header.html"
     title: "pnbp- Home"
   pagemod:
     content:
       mod: "blog"
       settings:
         defaultPostCount: "1"
-        data: "./data/index.json"
-        postTemplate: "./templates/homepost.html"
+        data: "data/index.json"
+        postTemplate: "templates/homepost.html"
 docs:
   template: "templates/std.html"
   pagevar:
-    :header: "./includes/header.html"
+    $header: "includes/header.html"
     title: "pnbp- Documentation"
   pagemod:
     content:
       mod: "blog"
       settings:
-        description: 1
+        description: "1"
         defaultPostCount: "0"
-        data: "./data/docs.json"
+        data: "data/docs.json"

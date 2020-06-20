@@ -1,15 +1,19 @@
 <div>
   <h1>This is in fact not a blog. %page%</h1>
   {:
-for i,x in sorted(getConf().items(),reverse=True):
+returns = ""
+for i,x in sorted(tools.getConf().items(), reverse=True):
     l = i
-    if page == "":page = "index"
-    if str(i) == page: c = "current"
-    else: c = ""
+    if page == "":
+        page = "index"
+    if str(i) == page:
+        c = "current"
+    else:
+        c = ""
 
     if i == "index":
         i = ""
     i = "/"+i
-    returns = "<a class=\"{}\" href=\"{}\">{}</a>&nbsp;".format(c, i, l) + returns
+    returns += "<a class=\"{}\" href=\"{}\">{}</a>&nbsp;".format(c, i, l)
   :}
 </div>

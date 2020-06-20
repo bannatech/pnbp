@@ -1,5 +1,0 @@
-AuthUserFile %pass%
-AuthName "Please Log In"
-AuthType Basic
-Require user %user%
-

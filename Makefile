@@ -1,5 +1,5 @@
 install :
-	cp -r src /usr/local/bin/pnbp
-	ln -s /usr/local/bin/pnbp/init.py /usr/local/bin/build
+	cp -r src /usr/local/pnbp
+	ln -s /usr/local/pnbp/pnbp.py /usr/local/bin/pbuild
 remove :
-	rm -rf /usr/local/bin/pnbp /usr/local/bin/build
+	rm -rf /usr/local/bin/pnbp /usr/local/bin/pbuild
