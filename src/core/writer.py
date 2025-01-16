@@ -6,14 +6,7 @@
 import os
 import shutil
 
-
-def removeOut(loc):
-    for i in os.scandir(loc):
-        print(f"DELETE {i.path}")
-        if i.is_dir():
-            shutil.rmtree(i.path)
-        else:
-            os.remove(i.path)
+static_dir = "data/static/"
 
 
 # Builds the site off of a dictionary.
@@ -32,8 +25,8 @@ def writeOut(site, loc):
 
     loc += "/" if loc[-1] != "/" else ""
 
-    for i in os.scandir("data/static/"):
-        src = os.path.join("data/static/", i.name)
+    for i in os.scandir(static_dir):
+        src = os.path.join(static_dir, i.name)
         dest = os.path.join(loc, i.name)
         print(f"COPY {src} -> {dest}")
         if i.is_file():
@@ -81,7 +74,8 @@ def toFS(name, cur):
 def writePages(d, cur):
     for k, v in d.items():
         fname, dirname = toFS(k, cur)
-        if dirname is not None and not os.path.exists(dirname):
+
+        if not os.path.exists(dirname):
             os.mkdir(dirname)
 
         if isinstance(v, dict):
@@ -90,3 +84,68 @@ def writePages(d, cur):
             fullpath = os.path.join(dirname, fname)
             print(f"WRITE {fullpath}")
             open(fullpath, "w").write(v)
+
+
+# Recursive loop to determine the file paths + directories of the resutling site
+# d = dict of all subpages, cur = Current directory
+def getCurrentPages(d, cur):
+    dirs = []
+    files = []
+    for k, v in d.items():
+        fname, dirname = toFS(k, cur)
+
+        if dirname not in dirs:
+            dirs.append(dirname)
+
+        if isinstance(v, dict):
+            sd, sf = getCurrentPages(v, dirname)
+            dirs.extend([d for d in sd if d not in dirs])
+            files.extend([f for f in sf if f not in files])
+
+        else:
+            fullpath = os.path.join(dirname, fname)
+            if fullpath not in files:
+                files.append(fullpath)
+
+    return dirs, files
+
+
+# Recursive loop to determine the static directories and files of the site
+# base = base directory to scan through
+def getCurrentStaticFiles(base, cur):
+    dirs = []
+    files = []
+    for i in os.scandir(base):
+        destpath = i.path.replace(static_dir, "", 1)
+        destpath = os.path.join(cur, destpath)
+        if i.is_file():
+            if destpath not in files:
+                files.append(destpath)
+        else:
+            dirs.append(destpath)
+            sd, sf = getCurrentStaticFiles(destpath, cur)
+            dirs.extend([d for d in sd if d not in dirs])
+            files.extend([f for f in sf if f not in files])
+
+    return dirs, files
+
+
+# Recursive loop to determine the file paths + directories of the resutling site
+# d = dict of all subpages, cur = Current directory
+def removeDeadPages(d, cur):
+    dirs, files = getCurrentPages(d, cur)
+    sd, sf = getCurrentStaticFiles(static_dir, cur)
+    dirs.extend([d for d in sd if d not in dirs])
+    files.extend([f for f in sf if f not in files])
+
+    active_dirs = os.scandir(cur)
+    for i in active_dirs:
+        if i.is_dir() and i.path not in dirs:
+            print(f"DELETE DIR {i.path}")
+            shutil.rmtree(i.path)
+
+    active_files = os.scandir(cur)
+    for i in active_files:
+        if i.is_dir() is False and i.path not in files:
+            print(f"DELETE FILE {i.path}")
+            os.remove(i.path)

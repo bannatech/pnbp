@@ -38,7 +38,6 @@ def execute(arg):
         raise Exception("Did not find pages file")
 
     site = core.builder.build(pagedata)
-    if arg.removedir and os.path.exists(arg.out):
-        core.writer.removeOut(arg.out)
-
     core.writer.writeOut(site, arg.out)
+    if arg.removedir and os.path.exists(arg.out):
+        core.writer.removeDeadPages(site, arg.out)
