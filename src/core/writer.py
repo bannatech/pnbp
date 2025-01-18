@@ -123,26 +123,33 @@ def getCurrentStaticFiles(base, cur):
                 files.append(destpath)
         else:
             dirs.append(destpath)
-            sd, sf = getCurrentStaticFiles(destpath, cur)
+            sd, sf = getCurrentStaticFiles(i.path, cur)
             dirs.extend([d for d in sd if d not in dirs])
             files.extend([f for f in sf if f not in files])
 
     return dirs, files
 
 
-# Recursive loop to determine the file paths + directories of the resutling site
+# Removes all files and directories that are not part of the current site
 # d = dict of all subpages, cur = Current directory
 def removeDeadPages(d, cur):
     dirs, files = getCurrentPages(d, cur)
     sd, sf = getCurrentStaticFiles(static_dir, cur)
     dirs.extend([d for d in sd if d not in dirs])
     files.extend([f for f in sf if f not in files])
+    removeDeadTreesAndLeafs(dirs, files, cur)
 
+
+# Recursive loop to determine which files and directories are not current
+# d = dict of all subpages, cur = Current directory
+def removeDeadTreesAndLeafs(dirs, files, cur):
     active_dirs = os.scandir(cur)
     for i in active_dirs:
         if i.is_dir() and i.path not in dirs:
             print(f"DELETE DIR {i.path}")
             shutil.rmtree(i.path)
+        elif i.is_dir():
+            removeDeadTreesAndLeafs(dirs, files, i.path)
 
     active_files = os.scandir(cur)
     for i in active_files:
