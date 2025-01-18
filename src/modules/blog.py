@@ -124,7 +124,16 @@ def getDB(db, backend, contentType):
     if backend == "json":
         dbdata = json.load(open(db))
         if contentType == "markdown":
+            md = markdown.Markdown(
+                extensions=[
+                    'footnotes',
+                    'tables',
+                    'def_list',
+                    'fenced_code'
+                ]
+            )
             for post in dbdata:
-                post['content'] = markdown.markdown(post['content'])
+                post['content'] = md.convert(post['content'])
+                md.reset()
 
     return dbdata
