@@ -12,13 +12,15 @@ made my own.
 
 * Python 3.x
 
-* pyyaml (`pip install pyyaml`)
+* [pyyaml](https://pypi.org/project/PyYAML/)
+
+* [markdown](https://python-markdown.github.io/)
 
 ## How to install
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/bannana/pnbp.git
+$ git clone https://github.com/bannatech/pnbp.git
   
 $ cd pnbp
 # Install pnbp

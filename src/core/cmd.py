@@ -44,9 +44,9 @@ index:
   template: "template.html"
   pagevar:
     title: "I'm basic"
-    pagemod:
-      page:
-        mod: page
+  pagemod:
+    page:
+      mod: page
 """
 
 basicTemplate = """<!-- Skeletal configuration -->
