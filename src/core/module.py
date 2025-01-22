@@ -38,11 +38,17 @@ def modPage(pageTemplate, pageDefinition, modDefinition, modName, pageName):
     temp = core.template.generate(temp, pagevar, pageName)
 
     if 'settings' in modDefinition and 'location' in modDefinition['settings']:
-        page = {
-            modDefinition['settings']['location']: {
-                'index': temp
+        loc = modDefinition['settings']['location']
+        if len(loc.split('.')) > 0:
+            page = {
+                loc: temp
             }
-        }
+        else:
+            page = {
+                loc: {
+                    'index': temp
+                }
+            }
     else:
         page = {
             'index': temp
