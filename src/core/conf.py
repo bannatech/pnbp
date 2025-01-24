@@ -1,7 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  conf.py - encapsulate configuration handling
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 import os

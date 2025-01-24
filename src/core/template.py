@@ -1,10 +1,11 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  template.py
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 import re
+
 import core.env
 
 
@@ -30,7 +31,6 @@ def generate(rawTemplate, pagevar, pageName):
             if exists:
                 inc = open(replace).read()
                 inc = generate(inc, pagevar, pageName)
-                print(f"Building include: '{search}'")
                 t = t.replace(key, inc)
 
         else:

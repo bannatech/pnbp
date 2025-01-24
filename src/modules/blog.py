@@ -5,20 +5,22 @@ import time
 
 def getPages(template, settings, modName, pageName):
     pages = {}
+    backend = settings.get("backend", "json")
+    contentType = settings.get("contentType", "markdown")
+
     postTemplate = settings.get("postTemplate", "templates/post.html")
-    defaultPostCount = settings.get("defaultPostCount", "0")
     genAll = settings.get("genAll", "0")
     genPosts = settings.get("genPosts", "1")
     postsPage = settings.get("postsPage", "post")
     description = settings.get("description", "0")
-    contentType = settings.get("contentType", "markdown")
-    backend = settings.get("backend", "json")
+    defaultPostCount = settings.get("defaultPostCount", "0")
 
     data = getDB(settings['data'], backend, contentType)
-
     temp = open(postTemplate).read()
 
     namekey = f"%{modName}%"
+    subjkey = f"%{modName}title%"
+    desckey = f"%{modName}desc%"
     posts = len(data)
     if genAll != "0":
         allContent = ""
@@ -29,7 +31,11 @@ def getPages(template, settings, modName, pageName):
 
         # Generates all posts on page (/all)
         pages['all'] = {}
-        pages['all']['index'] = template.replace(namekey, allContent)
+        indexpage = template.replace(namekey, allContent)
+        indexpage = indexpage.replace(subjkey, "all posts")
+        indexpage = indexpage.replace(desckey, "all posts")
+
+        pages['all']['index'] = indexpage
 
     # Generates index
     indexContent = ""
@@ -49,7 +55,15 @@ def getPages(template, settings, modName, pageName):
     if genPosts != "0":
         for i in data:
             post = generatePost(i, temp, pageName, postsPage)
-            posts[slug(i['title'])] = template.replace(namekey, post)
+            postpage = template.replace(namekey, post)
+            postpage = postpage.replace(subjkey, f"{i['title']} - ")
+            if 'description' in i:
+                postpage = postpage.replace(desckey, f"{i['description']} - ")
+            else:
+                postpage = postpage.replace(desckey, f"{i['title']} - ")
+
+            pageKey = slug(i['title'])
+            posts[pageKey] = postpage
 
     if postsPage == "":
         pages.update(posts)

@@ -1,7 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  env.py - maintain the scripting environment for templates
-'  Paul Longtine -Paul Longtine <paul@nanner.co>
+'  Paul Longtine -Paul Longtine <paul@banna.tech>
 '''
 
 import time

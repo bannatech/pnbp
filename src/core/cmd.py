@@ -1,7 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  cmd.py - manages the commandline interface
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 from optparse import OptionParser
@@ -12,7 +12,7 @@ import core.module
 def parsearg():
     parser = OptionParser()
 
-    parser.add_option("-m", "--modules", dest="module_dir", default=core.module.module_path,
+    parser.add_option("-m", "--modules", dest="module_dir", default="",
                       help="module directory", metavar="<dir>")
 
     parser.add_option("-p", "--project", dest="dir", default=".",
@@ -21,20 +21,26 @@ def parsearg():
     parser.add_option("-o", "--output", dest="out", default="site",
                       help="output directory", metavar="<out>")
 
-    parser.add_option("-r", "--remove", dest="removedir", action="store_true",
-                      default=False, help="remove output directory automatically")
+    parser.add_option("-I", "--index", dest="index_file", default="",
+                      help="specify the file name for index files",
+                      metavar="<filename>")
+
+    parser.add_option("-d", "--dry-run", dest="dry_run", action="store_true",
+                      default=False, help="build site, do not write")
+
+    parser.add_option("-r", "--scrub", dest="scrub", action="store_true",
+                      default=False, help="clean output dir after write")
 
     parser.add_option("-i", "--init", dest="init", action="store_true",
                       default=False, help="initalize basic project directory")
 
-    parser.add_option("-t", "--pagestype", dest="pagestype", metavar="(yml|json)",
-                      default=core.conf.target_type, help="pages format")
+    parser.add_option("-t", "--pagestype", dest="pagestype",
+                      metavar="(yml|json)", help="pages format",
+                      default=core.conf.target_type)
 
-    parser.add_option("-n", "--pagesname", dest="pagesname", metavar="<name>",
-                      default=core.conf.target_name, help="pages name")
-
-    parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
-                      default=False, help="verbose stderr output")
+    parser.add_option("-n", "--pagesname", dest="pagesname",
+                      metavar="<name>", help="pages name",
+                      default=core.conf.target_name)
 
     return parser.parse_args()
 

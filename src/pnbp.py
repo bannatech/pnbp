@@ -2,7 +2,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  pnbp.py
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 import os
@@ -23,8 +23,7 @@ if __name__ == "__main__":
         core.execute(options)
     except Exception as e:
         print("Error: {}".format(e))
-        if options.verbose:
-            traceback.print_exc()
+        traceback.print_exc()
 
         sys.exit(1)
 

@@ -1,7 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  module.py - implements the page module and the interface for loading modules
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 import os

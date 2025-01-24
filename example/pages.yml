@@ -7,8 +7,9 @@ index:
     content:
       mod: "blog"
       settings:
+        genPosts: "0"
         defaultPostCount: "1"
-        data: "data/index.json"
+        data: "data/json/index.json"
         postTemplate: "templates/homepost.html"
 docs:
   template: "templates/std.html"
@@ -21,4 +22,4 @@ docs:
       settings:
         description: "1"
         defaultPostCount: "0"
-        data: "data/docs.json"
+        data: "data/json/docs.json"

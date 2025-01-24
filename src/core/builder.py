@@ -1,7 +1,7 @@
 '''
 '  pnbp - pnbp is not a blogging platform
 '  builder.py
-'  Paul Longtine <paul@nanner.co>
+'  Paul Longtine <paul@banna.tech>
 '''
 
 import os
@@ -18,21 +18,19 @@ def build(pd):
     for pageName, pageDefinition in pd.items():
         genTemplate = ""
         if 'template' in pageDefinition:
-            template = ""
-            templateFile = pageDefinition['template']
+            temp = ""
+            tempFile = pageDefinition['template']
             try:
-                template = open(templateFile).read()
+                temp = open(tempFile).read()
             except Exception as err:
-                ex = f"{pageName}: Can't open file '{templateFile}': {err}"
+                ex = f"{pageName}: Can't open file '{tempFile}': {err}"
                 raise Exception(ex)
 
             pagevar = {}
             if 'pagevar' in pageDefinition:
                 pagevar = pageDefinition['pagevar']
-            genTemplate = core.template.generate(template, pagevar, pageName)
+            genTemp = core.template.generate(temp, pagevar, pageName)
 
-        print(f"Running modules for page: '{pageName}'")
-        site[pageName] = core.module.run(genTemplate, pageDefinition, pageName)
-        print(f"Built page: '{pageName}'\n")
+        site[pageName] = core.module.run(genTemp, pageDefinition, pageName)
 
     return site
