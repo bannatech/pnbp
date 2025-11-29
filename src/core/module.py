@@ -6,101 +6,92 @@
 
 import os
 import sys
-import imp
+import importlib.util
+
 import core.template
 
-base_module_path = os.path.join(os.path.dirname(__file__), "../modules")
-module_path = ""
-loaded_modules = {}
-
-
 # Built-in module, generates page as subpage
-def modPage(pageTemplate, pageDefinition, modDefinition, modName, pageName):
-    if 'settings' in modDefinition and 'template' in modDefinition['settings']:
-        templateFile = modDefinition['settings']['template']
+class PageMod:
+    @staticmethod
+    def getPages(pageTemplate, pageDefinition, modDefinition, modName, pageName):
+        if 'template' in modDefinition:
+            templateFile = modDefinition['template']
 
-        try:
-            temp = open(templateFile).read()
-        except Exception as e:
-            ex = f"Error occured at {pageName} using module page: failed to open file {templateFile}: {e}"
-            raise Exception(ex)
+            try:
+                temp = open(templateFile).read()
+            except Exception as e:
+                ex = f"Error occured at {pageName} using module page: failed to open file {templateFile}: {e}"
+                raise Exception(ex)
 
-    else:
-        temp = pageTemplate
-
-    pagevar = {}
-    if 'pagevar' in pageDefinition:
-        pagevar = pageDefinition['pagevar']
-
-        if 'settings' in modDefinition and 'pagevar' in modDefinition['settings']:
-            pageDefinition['pagevar'].update(modDefinition['settings']['pagevar'])
-
-    temp = core.template.generate(temp, pagevar, pageName)
-
-    if 'settings' in modDefinition and 'location' in modDefinition['settings']:
-        loc = modDefinition['settings']['location']
-        if len(loc.split('.')) > 0:
-            page = {
-                loc: temp
-            }
         else:
-            page = {
-                loc: {
-                    'index': temp
-                }
-            }
-    else:
-        page = {
-            'index': temp
-        }
+            temp = pageTemplate
 
-    return page
+        pagevar = {}
+        if 'pagevar' in pageDefinition:
+            pagevar.update(pageDefinition['pagevar'])
+
+        if 'pagevar' in modDefinition:
+            pagevar.update(modDefinition['pagevar'])
+
+        temp = core.template.generate(temp, pagevar, pageName)
+
+        if 'location' in modDefinition:
+            loc = modDefinition['location']
+            if len(loc.split('.')) > 0:
+                page = {loc: temp}
+            else:
+                page = {loc: {'index': temp}}
+        else:
+            page = {'index': temp}
+
+        return page
 
 
 def getModule(module_name):
-    if module_name not in loaded_modules:
+    if module_name in loaded_modules:
+        module = loaded_modules[module_name]
+    else:
         module_py = f"{module_name}.py"
+
+        # Resolve the file path – try base first, then fallback if needed
         module_fname = os.path.join(base_module_path, module_py)
-        if os.path.exists(module_fname) is False and module_path != "":
+        if not os.path.exists(module_fname) and module_path:
             module_fname = os.path.join(module_path, module_py)
 
-        if os.path.exists(module_fname) is False:
-            raise Exception(f"Module not found: '{module_name}'")
+        if not os.path.exists(module_fname):
+            raise Exception(f"module not found: '{module_name}'")
 
-        loaded_modules[module_name] = imp.load_source(module_name, module_fname)
+        # Create a module spec and load the module
+        spec = importlib.util.spec_from_file_location(module_name, module_fname)
+        if spec is None or spec.loader is None:
+            raise Exception(f"could not create import spec for module '{module_name}'")
 
-    return loaded_modules[module_name]
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+        except Exception as e:
+            raise Exception(f"error loading module '{module_name}': {e}")
 
+        loaded_modules[module_name] = module
+
+    return module
+
+base_module_path = os.path.join(os.path.dirname(__file__), "../modules")
+module_path = ""
+loaded_modules = {'page':PageMod}
 
 # Runs modules defined in pages.json
 #
 def run(pageTemplate, pageDefinition, pageName):
     subpage = {}
     for modName, modDefinition in pageDefinition['pagemod'].items():
-        modType = modDefinition['mod']
-        if modType == "page":
-            mergeSubpages(
-                subpage,
-                modPage(
-                    pageTemplate,
-                    pageDefinition,
-                    modDefinition,
-                    modName,
-                    pageName
-                )
-            )
-
-        else:
-            mergeSubpages(
-                subpage,
-                getSubpages(
-                    pageTemplate,
-                    pageDefinition,
-                    modDefinition,
-                    modName,
-                    pageName
-                )
-            )
+        mergeSubpages(subpage, getSubpages(
+            pageTemplate,
+            pageDefinition,
+            modDefinition,
+            modName,
+            pageName
+        ))
 
         if 'index' in subpage:
             pageTemplate = subpage['index']
@@ -111,17 +102,13 @@ def run(pageTemplate, pageDefinition, pageName):
 # Gets subpages from module specified in data
 def getSubpages(pageTemplate, pageDefinition, modDefinition, modName, pageName):
     returns = {}
-    settings = {}
-    if "settings" in modDefinition:
-        settings = modDefinition['settings']
-
+    settings = modDefinition.get('settings', {})
     module_name = modDefinition['mod']
-
     module = getModule(module_name)
     if module is not None:
         getPages = getattr(module, 'getPages')
         try:
-            returns = getPages(pageTemplate, settings, modName, pageName)
+            returns = getPages(pageTemplate, pageDefinition, settings, modName, pageName)
         except Exception as e:
             raise Exception(f"Error occured at {pageName} using module {module_name}: {e}")
     else:

@@ -3,7 +3,7 @@ import json
 import time
 
 
-def getPages(template, settings, modName, pageName):
+def getPages(template, pageDefinition, settings, modName, pageName):
     pages = {}
     backend = settings.get("backend", "json")
     contentType = settings.get("contentType", "markdown")
