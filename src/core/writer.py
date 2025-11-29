@@ -5,10 +5,17 @@
 '''
 import os
 import shutil
+import hashlib
 
 static_dir = "data/static/"
 index_file = "index.html"
 
+# Handles directories
+def handlePages(pageName, loc):
+    if pageName == "index":
+        return loc[:-1] if loc[-1] == "/" else loc
+    else:
+        return os.path.join(loc, pageName)
 
 # Builds the site off of a dictionary.
 # site = dict of site directory tree/pages, loc = root of site
@@ -25,26 +32,39 @@ def writeOut(site, loc, dry_run):
         writePages(subpages, currentDir, dry_run)
 
     loc += "/" if loc[-1] != "/" else ""
+    copy_tree(static_dir, loc, dry_run)
 
-    copystring = "COPY" if not dry_run else "DRY-RUN-COPY"
-    for i in os.scandir(static_dir):
-        src = os.path.join(static_dir, i.name)
-        dest = os.path.join(loc, i.name)
-        print(f"{copystring} {src} -> {dest}")
-        if not dry_run:
-            if i.is_file():
-                shutil.copy(src, dest)
+def copy_tree(src_dir, dest_dir, dry_run):
+    copystring = "HAS  " if not dry_run else "DRY-RUN-COPY"
+    for i in os.scandir(src_dir):
+        src = os.path.join(src_dir, i.name)
+        dest = os.path.join(dest_dir, i.name)
+        if i.is_dir():
+            if not os.path.exists(dest):
+                os.mkdir(dest)
+            copy_tree(src, dest, dry_run)
+        elif i.is_file():
+            srcSize = 0
+            s = hashlib.sha256()
+            with open(src, 'rb') as f:
+                sfile = f.read()
+                srcSize = len(sfile)
+                s.update(sfile)
+
+            srchash = s.digest()
+            if os.path.exists(dest) and os.path.isdir(dest) == False:
+                s = hashlib.sha256()
+                with open(dest, 'rb') as f:
+                    s.update(f.read())
+                desthash = s.digest()
             else:
-                shutil.copytree(src, dest, dirs_exist_ok=True)
+                desthash = 0
 
+            if not dry_run and srchash != desthash:
+                copystring = "COPY "
+                shutil.copy(src, dest)
 
-# Handles directories
-def handlePages(pageName, loc):
-    if pageName == "index":
-        return loc[:-1] if loc[-1] == "/" else loc
-
-    else:
-        return os.path.join(loc, pageName)
+            print(f"{copystring} {s.hexdigest()} {dest} {srcSize}")
 
 
 # Format subpage name to filename used in filesystem
@@ -75,7 +95,7 @@ def toFS(name, cur):
 # Recursive loop through all subpages
 # d = dict of all subpages, cur = Current directory
 def writePages(d, cur, dry_run):
-    writestring = "WRITE" if not dry_run else "DRY-RUN-WRITE"
+    writestring = "DRY  "
     for k, v in d.items():
         fname, dirname = toFS(k, cur)
         if not os.path.exists(dirname):
@@ -85,9 +105,27 @@ def writePages(d, cur, dry_run):
             writePages(v, dirname, dry_run)
         else:
             fullpath = os.path.join(dirname, fname)
-            print(f"{writestring} {fullpath} {len(v)}")
+            s = hashlib.sha256()
+            s.update(v.encode())
+            curhash = s.digest()
             if not dry_run:
-                open(fullpath, "w").write(v)
+                if os.path.exists(fullpath):
+                    s = hashlib.sha256()
+                    with open(fullpath, "rb") as f:
+                        s.update(f.read())
+                    fhash = s.digest()
+                    fhx = s.hexdigest()
+                else:
+                    fhx = "N/A"
+                    fhash = 0
+
+                if fhash != curhash:
+                    writestring = "WRITE"
+                    open(fullpath, "w").write(v)
+                else:
+                    writestring = "HAS  "
+
+            print(f"{writestring} {s.hexdigest()} {fullpath} {len(v)}")
 
 
 # Recursive loop to determine the file paths + directories of the resutling site
