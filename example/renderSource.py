@@ -6,8 +6,8 @@ import yaml
 import os
 import shutil
 
-input_dir = "sources"
-output_dir = "json"
+input_dir = "data/sources"
+output_dir = "data/json"
 
 
 def renderSource(path):
