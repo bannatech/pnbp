@@ -12,7 +12,8 @@ index_file = "index.html"
 
 # Builds the site off of a dictionary.
 # site = dict of site directory tree/pages, loc = root of site
-def writeOut(site, loc, dry_run):
+# dry_run = don't write to the filesystem, scrub = clean the tree after writes
+def writeOut(site, loc, dry_run, scrub):
     dirs = set()
     files = set()
     if not dry_run and not os.path.exists(loc):
@@ -36,12 +37,14 @@ def writeOut(site, loc, dry_run):
     dirs |= d
     files |= f
 
+    if scrub:
+        removeDeadTreesAndLeafs(dirs, files, loc, dry_run)
+
     return dirs, files
 
 def copyTree(src_dir, dest_dir, dry_run):
     dirs = set()
     files = set()
-    copystring = "HAS"
     for i in os.scandir(src_dir):
         src_path = os.path.join(src_dir, i.name)
         dest_path = os.path.join(dest_dir, i.name)
@@ -65,10 +68,13 @@ def copyTree(src_dir, dest_dir, dry_run):
                 with open(dest_path, 'rb') as f:
                     desthash = hashlib.sha256(f.read()).digest()
 
+            copystring = "HAS"
             if srchash != desthash:
                 if not dry_run:
                     copystring = "COPY"
                     shutil.copy(src_path, dest_path)
+                elif desthash == b'':
+                    copystring = "DRY-COPY"
                 else:
                     copystring = f"DIFF != {desthash.hex()}"
 
@@ -105,7 +111,6 @@ def toFS(name, cur):
 def writePages(d, cur, dry_run):
     dirs = set()
     files = set()
-    writestring = "DRY"
     for k, v in d.items():
         fname, dirname = toFS(k, cur)
         dirs.add(dirname)
@@ -126,28 +131,24 @@ def writePages(d, cur, dry_run):
                 with open(fullpath, "rb") as f:
                     desthash = hashlib.sha256(f.read()).digest()
 
-            if desthash != curhash:
+            writestring = "HAS"
+            if curhash != desthash:
                 if not dry_run:
                     writestring = "WRITE"
                     open(fullpath, "w").write(v)
+                elif desthash == b'':
+                    writestring = "DRY-WRITE"
                 else:
                     writestring = f"DIFF != {desthash.hex()}"
-            else:
-                writestring = "HAS"
 
             print(f"{writestring} {curhash.hex()} {fullpath} {len(v)}")
 
     return dirs, files
 
-# Removes all files and directories that are not part of the current site
-# result = tuple of two sets (dirs, files), cur = Current directory
-def removeDeadPages(result, cur, dry_run):
-    dirs, files = result
-    removeDeadTreesAndLeafs(dirs, files, cur, dry_run)
-
 
 # Recursive loop to determine which files and directories are not current
 # d = dict of all subpages, cur = Current directory
+# dry_run = don't write to the filesystem
 def removeDeadTreesAndLeafs(dirs, files, cur, dry_run):
     deletestring = "DELETE" if not dry_run else "DRY-DELETE"
     for i in os.scandir(cur):

@@ -16,16 +16,15 @@ if __name__ == "__main__":
     # Reference start time for calculating approximate elapsed time
     start = monotonic()
 
-    options, args = core.cmd.parsearg()
+    args, _ = core.cmd.parsearg()
 
     # Attempt to build the site with the options provided
     try:
-        core.execute(options)
+        files, dirs = core.execute(args)
     except Exception as e:
-        print("Error: {}".format(e))
         traceback.print_exc()
-
         sys.exit(1)
 
-    # Show the elapsed time for assembling the site
-    print("Finished in {} ms.".format((monotonic()-start)*1000))
+    duration = (monotonic() - start) * 1000
+    # Show the elapsed time for assembling the site and the number of files/dirs
+    print(f"generated {len(files)} files across {len(dirs)} dirs in {duration} ms")

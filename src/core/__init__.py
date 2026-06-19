@@ -13,6 +13,7 @@ import core.builder
 import core.writer
 
 
+# arg = parsed arguments from core.cmd.parsearg
 def execute(arg):
     if os.path.exists(arg.dir):
         print(f"using directory '{arg.dir}'")
@@ -21,7 +22,7 @@ def execute(arg):
         raise Exception(f"'{arg.dir}' does not exist")
 
     if arg.module_dir != "":
-        if os.path.exists(arg.module_dir):
+        if os.path.isdir(arg.module_dir):
             print(f"using module directory '{arg.module_dir}'")
             core.module.module_path = arg.module_dir
         else:
@@ -39,9 +40,7 @@ def execute(arg):
     conf.ftype = arg.pagestype
     pagedata = conf.load()
     if pagedata is None:
-        raise Exception("Did not find pages file")
+        raise Exception("pagedata is empty")
 
     site = core.builder.build(pagedata)
-    result = core.writer.writeOut(site, arg.out, arg.dry_run)
-    if arg.scrub and os.path.exists(arg.out):
-        core.writer.removeDeadPages(result, arg.out, arg.dry_run)
+    return core.writer.writeOut(site, arg.out, arg.dry_run, arg.scrub)
