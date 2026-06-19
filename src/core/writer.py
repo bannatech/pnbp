@@ -32,10 +32,10 @@ def writeOut(site, loc, dry_run, scrub):
         dirs |= d
         files |= f
 
-    loc += "/" if loc[-1] != "/" else ""
-    d, f = copyTree(static_dir, loc, dry_run)
-    dirs |= d
-    files |= f
+    if os.path.isdir(static_dir):
+        d, f = copyTree(static_dir, loc, dry_run)
+        dirs |= d
+        files |= f
 
     if scrub:
         removeDeadTreesAndLeafs(dirs, files, loc, dry_run)
@@ -101,8 +101,6 @@ def toFS(name, cur):
         fname = name
 
     dirname = os.path.join(cur, dirname) if dirname is not None else cur
-
-
     return fname, dirname
 
 

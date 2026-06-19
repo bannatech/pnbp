@@ -15,6 +15,9 @@ def parsearg():
     parser.add_option("-m", "--modules", dest="module_dir", default="",
                       help="module directory", metavar="<dir>")
 
+    parser.add_option("-s", "--static", dest="static_dir", default="",
+                      help="static files directory", metavar="<dir>")
+
     parser.add_option("-p", "--project", dest="dir", default=".",
                       help="project root directory", metavar="<dir>")
 
@@ -26,7 +29,7 @@ def parsearg():
                       metavar="<filename>")
 
     parser.add_option("-d", "--dry-run", dest="dry_run", action="store_true",
-                      default=False, help="build site, do not write")
+                      default=False, help="build without writing to the fs")
 
     parser.add_option("-r", "--scrub", dest="scrub", action="store_true",
                       default=False, help="clean output dir after write")

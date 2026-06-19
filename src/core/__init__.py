@@ -28,6 +28,13 @@ def execute(arg):
         else:
             raise Exception(f"'{arg.module_dir}' does not exist")
 
+    if arg.static_dir != "":
+        if os.path.isdir(arg.static_dir):
+            print(f"using static directory '{arg.static_dir}'")
+            core.writer.static_dir = arg.static_dir
+        else:
+            raise Exception(f"'{arg.static_dir}' does not exist")
+
     if arg.index_file != "":
         print(f"using index filename '{arg.index_file}'")
         core.writer.index_file = arg.index_file
