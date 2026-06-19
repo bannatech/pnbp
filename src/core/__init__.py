@@ -15,25 +15,25 @@ import core.writer
 
 # arg = parsed arguments from core.cmd.parsearg
 def execute(arg):
+    print(f"using directory '{arg.dir}'")
     if os.path.exists(arg.dir):
-        print(f"using directory '{arg.dir}'")
         os.chdir(arg.dir)
     else:
-        raise Exception(f"'{arg.dir}' does not exist")
+        raise Exception(f"project dir '{arg.dir}' does not exist")
 
     if arg.module_dir != "":
+        print(f"using module directory '{arg.module_dir}'")
         if os.path.isdir(arg.module_dir):
-            print(f"using module directory '{arg.module_dir}'")
             core.module.module_path = arg.module_dir
         else:
-            raise Exception(f"'{arg.module_dir}' does not exist")
+            raise Exception(f"module dir '{arg.module_dir}' does not exist")
 
     if arg.static_dir != "":
+        print(f"using static directory '{arg.static_dir}'")
         if os.path.isdir(arg.static_dir):
-            print(f"using static directory '{arg.static_dir}'")
             core.writer.static_dir = arg.static_dir
         else:
-            raise Exception(f"'{arg.static_dir}' does not exist")
+            raise Exception(f"static dir '{arg.static_dir}' does not exist")
 
     if arg.index_file != "":
         print(f"using index filename '{arg.index_file}'")
