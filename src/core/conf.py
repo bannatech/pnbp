@@ -25,11 +25,11 @@ class Configuration:
 
     def type_yml(self):
         name = self.get_f()
-        return yaml.safe_load(open(name))
+        return yaml.safe_load(open(name, 'r'))
 
     def type_json(self):
         name = self.get_f()
-        return json.load(open(name))
+        return json.load(open(name, 'r'))
 
     def get_f(self):
         if os.path.exists(self.fname):
