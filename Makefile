@@ -1,5 +1,7 @@
+PREFIX ?= /usr/local/lib
+BINDIR ?= /usr/local/bin
 install :
-	cp -r src /usr/local/pnbp
-	ln -s /usr/local/pnbp/pnbp.py /usr/local/bin/pbuild
+	cp -r src $(PREFIX)/pnbp
+	ln -s $(PREFIX)/pnbp/pnbp.py $(BINDIR)/pbuild
 remove :
-	rm -rf /usr/local/bin/pnbp /usr/local/bin/pbuild
+	rm -rf $(PREFIX)/pnbp $(BINDIR)/pbuild
