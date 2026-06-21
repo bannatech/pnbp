@@ -1,5 +1,45 @@
 #!/usr/bin/env python3
-# Generates the *.json files in json/ from content in the sources/ dir
+"""
+Generates the *.json files in json/ from content in the sources/ dir
+
+Each directory under the sources/ dir should contain a collection of `md` files.
+
+For each directory under sources/, the `md` files are parsed and packed into a
+JSON file in the json/ directory with the same name of the sources/ directory.
+
+The JSON file is an array of objects.
+
+The specific format of the `md` files uses a yaml header separated by `%=%`.
+
+yaml data is then packed into the entry, and the data after the `%=%` is used
+as the `content` key.
+
+For example, an `md` file like this:
+
+```
+    description: Example content for the people
+    post: '0'
+    title: Test Post
+    %=%
+    # Your content here!
+
+    Super cool!
+```
+
+Generates an object in the json array:
+
+```
+    {
+        "description": "Example content for the people",
+        "post": "0",
+        "title": "Test Post",
+        "content": "# Your content here!\n\nSuper cool!"
+    }
+```
+
+These json files are expected to be processed with the `blog.py` module.
+"""
+
 
 import json
 import yaml
@@ -10,11 +50,11 @@ input_dir = "data/sources"
 output_dir = "data/json"
 
 
-def renderSource(path):
+def packContent(path):
     db = {}
     titleslugs = []
     for file in os.scandir(path):
-        if len(file.name) != 2 or file.name[len(file.name)-2:] == "md":
+        if len(file.name) != 2 or file.name[len(file.name)-2:] != "md":
             pass
 
         sourceFile = open(file.path).read()
@@ -55,8 +95,8 @@ if __name__ == "__main__":
     for directory in os.scandir(input_dir):
         if directory.is_dir() is False:
             pass
-        jsondata = renderSource(directory.path)
+        jsondata = packContent(directory.path)
         path = os.path.join(output_dir, f"{directory.name}.json")
         open(path, "w").write(jsondata)
         print(f"wrote '{path}'")
-    print("rendered sources")
+    print("packed sources")
