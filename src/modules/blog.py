@@ -13,7 +13,7 @@ def getPages(template, pageDefinition, settings, modName, pageName):
     genPosts = settings.get("genPosts", "1")
     postsPage = settings.get("postsPage", "post")
     description = settings.get("description", "0")
-    defaultPostCount = settings.get("defaultPostCount", "0")
+    defaultPostCount = int(settings.get("defaultPostCount", 0))
 
     data = getDB(settings['data'], backend, contentType)
     temp = open(postTemplate).read()
@@ -39,11 +39,14 @@ def getPages(template, pageDefinition, settings, modName, pageName):
 
     # Generates index
     indexContent = ""
+    genAllPostIndex = defaultPostCount == 0
+    limitAllPostIndex = posts - defaultPostCount
     for i in data:
-        if int(defaultPostCount) == 0 or int(i['post']) >= posts-int(defaultPostCount):
+        if genAllPostIndex or int(i['post']) >= limitAllPostIndex:
             back = i['content']
             if description != "0":
                 i['content'] = i['description']
+
             indexContent = generatePost(i, temp, pageName, postsPage) + indexContent
             i['content'] = back
 
@@ -65,10 +68,10 @@ def getPages(template, pageDefinition, settings, modName, pageName):
             pageKey = slug(i['title'])
             posts[pageKey] = postpage
 
-    if postsPage == "":
-        pages.update(posts)
-    else:
-        pages[postsPage] = posts
+        if postsPage == "":
+            pages.update(posts)
+        else:
+            pages[postsPage] = posts
 
     return pages
 
